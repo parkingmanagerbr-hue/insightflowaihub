@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import Reports from "./pages/dashboard/Reports";
+import PowerBI from "./pages/dashboard/PowerBI";
 import History from "./pages/dashboard/History";
 import Settings from "./pages/dashboard/Settings";
 import Admin from "./pages/dashboard/Admin";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="powerbi" element={<PowerBI />} />
               <Route path="history" element={<History />} />
               <Route path="settings" element={<Settings />} />
               <Route path="admin" element={<Admin />} />
