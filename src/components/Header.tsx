@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
-import InstallButton from "./InstallButton";
 
 const navLinks = [
   { href: "#funcionalidades", label: "Funcionalidades" },
@@ -62,10 +61,9 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <InstallButton />
             <Button 
               asChild
-              className="hidden sm:flex bg-[hsl(210,100%,56%)] hover:bg-[hsl(210,100%,65%)] text-white"
+              className="bg-[hsl(210,100%,56%)] hover:bg-[hsl(210,100%,65%)] text-white"
             >
               <a href="/auth">Entrar</a>
             </Button>

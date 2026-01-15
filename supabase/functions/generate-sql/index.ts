@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +27,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const startTime = Date.now();
+
   try {
     const { prompt, context } = await req.json();
     
@@ -42,6 +45,21 @@ serve(async (req) => {
         JSON.stringify({ error: "AI service not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Get user from auth header
+    const authHeader = req.headers.get("Authorization");
+    let userId: string | null = null;
+    
+    if (authHeader) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      userId = user?.id || null;
     }
 
     const userMessage = context 
@@ -94,8 +112,32 @@ serve(async (req) => {
       .replace(/```\n?/g, "")
       .trim();
 
+    const executionTime = Date.now() - startTime;
+
+    // Save to history if user is authenticated
+    if (userId) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const adminSupabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        await adminSupabase.from("sql_query_history").insert({
+          user_id: userId,
+          prompt: prompt,
+          generated_sql: cleanedSQL,
+          context: context || null,
+          model_used: "google/gemini-3-flash-preview",
+          execution_time_ms: executionTime,
+        });
+        console.log("SQL query saved to history");
+      } catch (historyError) {
+        console.error("Error saving to history:", historyError);
+        // Don't fail the request if history save fails
+      }
+    }
+
     return new Response(
-      JSON.stringify({ sql: cleanedSQL }),
+      JSON.stringify({ sql: cleanedSQL, execution_time_ms: executionTime }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
