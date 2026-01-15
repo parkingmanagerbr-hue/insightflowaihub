@@ -80,6 +80,39 @@ export type Database = {
         }
         Relationships: []
       }
+      sql_query_history: {
+        Row: {
+          context: string | null
+          created_at: string
+          execution_time_ms: number | null
+          generated_sql: string
+          id: string
+          model_used: string | null
+          prompt: string
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          execution_time_ms?: number | null
+          generated_sql: string
+          id?: string
+          model_used?: string | null
+          prompt: string
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          execution_time_ms?: number | null
+          generated_sql?: string
+          id?: string
+          model_used?: string | null
+          prompt?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
