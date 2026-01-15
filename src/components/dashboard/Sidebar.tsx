@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   FileText,
+  BarChart3,
   History,
   Settings,
   Users,
@@ -27,6 +28,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: FileText, label: 'Gerar Relatório', path: '/dashboard/reports' },
+    { icon: BarChart3, label: 'Power BI', path: '/dashboard/powerbi' },
     { icon: History, label: 'Histórico', path: '/dashboard/history' },
     { icon: Settings, label: 'Configurações', path: '/dashboard/settings' },
   ];

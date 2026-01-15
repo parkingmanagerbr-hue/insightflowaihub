@@ -36,24 +36,38 @@ const Reports = () => {
 
     setIsGenerating(true);
     
-    // Simulate AI generation
-    setTimeout(() => {
-      setGeneratedSQL(`-- Relatório gerado automaticamente
-SELECT 
-  DATE_TRUNC('month', created_at) AS mes,
-  COUNT(*) AS total_vendas,
-  SUM(valor) AS receita_total,
-  AVG(valor) AS ticket_medio
-FROM vendas
-WHERE created_at >= NOW() - INTERVAL '12 months'
-GROUP BY DATE_TRUNC('month', created_at)
-ORDER BY mes DESC;`);
-      setIsGenerating(false);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-sql`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao gerar SQL');
+      }
+
+      const data = await response.json();
+      setGeneratedSQL(data.sql);
+      
       toast({
         title: 'SQL Gerado!',
-        description: 'O código SQL foi gerado com sucesso',
+        description: 'O código SQL foi gerado com Gemini AI',
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Error generating SQL:', error);
+      toast({
+        title: 'Erro',
+        description: error instanceof Error ? error.message : 'Erro ao gerar SQL',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleCopy = () => {
