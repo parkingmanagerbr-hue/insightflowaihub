@@ -108,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string, fullName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -118,6 +118,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       },
     });
+
+    // If signup successful, send approval request email to admin
+    if (!error && data.user) {
+      try {
+        await supabase.functions.invoke('send-approval-email', {
+          body: {
+            type: 'approval',
+            userEmail: email,
+            userName: fullName || '',
+            userId: data.user.id,
+          },
+        });
+        console.log('Approval email notification sent');
+      } catch (emailError) {
+        console.error('Error sending approval email:', emailError);
+        // Don't fail the signup if email fails
+      }
+    }
 
     return { error: error as Error | null };
   };

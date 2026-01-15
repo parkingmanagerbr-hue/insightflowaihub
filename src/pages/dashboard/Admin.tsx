@@ -88,6 +88,9 @@ const Admin = () => {
     const { userId, action } = actionDialog;
     const newStatus = action === 'approve' ? 'active' : 'rejected';
 
+    // Get user info for email
+    const user = users.find(u => u.user_id === userId);
+
     const { error } = await supabase
       .from('profiles')
       .update({ status: newStatus })
@@ -100,9 +103,26 @@ const Admin = () => {
         variant: 'destructive',
       });
     } else {
+      // Send email notification to user
+      if (user) {
+        try {
+          await supabase.functions.invoke('send-approval-email', {
+            body: {
+              type: action === 'approve' ? 'approved' : 'rejected',
+              userEmail: user.email,
+              userName: user.full_name || '',
+              userId: userId,
+            },
+          });
+          console.log('User notification email sent');
+        } catch (emailError) {
+          console.error('Error sending notification email:', emailError);
+        }
+      }
+
       toast({
         title: 'Sucesso',
-        description: `Usuário ${action === 'approve' ? 'aprovado' : 'rejeitado'} com sucesso`,
+        description: `Usuário ${action === 'approve' ? 'aprovado' : 'rejeitado'} com sucesso. E-mail de notificação enviado.`,
       });
       fetchUsers();
     }

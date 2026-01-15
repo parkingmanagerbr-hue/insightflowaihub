@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +14,7 @@ import Reports from "./pages/dashboard/Reports";
 import History from "./pages/dashboard/History";
 import Settings from "./pages/dashboard/Settings";
 import Admin from "./pages/dashboard/Admin";
+import UserApprove from "./pages/admin/UserApprove";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/admin/approve/:id" element={<UserApprove action="approve" />} />
+            <Route path="/admin/reject/:id" element={<UserApprove action="reject" />} />
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
               <Route path="reports" element={<Reports />} />
