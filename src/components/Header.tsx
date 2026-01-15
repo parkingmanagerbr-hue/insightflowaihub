@@ -33,8 +33,8 @@ const Header = () => {
       transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled 
-          ? "bg-background/80 backdrop-blur-xl shadow-lg border-b border-border" 
-          : "bg-transparent"
+          ? "bg-[hsl(216,82%,15%,0.95)] backdrop-blur-xl shadow-lg border-b border-white/10" 
+          : "bg-[hsl(216,82%,15%,0.5)] backdrop-blur-sm"
       }`}
     >
       <div className="container mx-auto px-4">
@@ -53,7 +53,7 @@ const Header = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-primary/5"
+                className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/10"
               >
                 {link.label}
               </a>
@@ -65,7 +65,7 @@ const Header = () => {
             <InstallButton />
             <Button 
               asChild
-              className="hidden sm:flex bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="hidden sm:flex bg-[hsl(210,100%,56%)] hover:bg-[hsl(210,100%,65%)] text-white"
             >
               <a href="/auth">Entrar</a>
             </Button>
