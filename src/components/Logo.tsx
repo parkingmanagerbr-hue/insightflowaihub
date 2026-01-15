@@ -21,7 +21,7 @@ const Logo = ({ size = "md", showText = true, className = "" }: LogoProps) => {
       transition={{ duration: 0.5 }}
     >
       <div 
-        className="relative flex items-center justify-center rounded-xl bg-gradient-to-br from-electric-blue to-deep-blue p-1.5"
+        className="relative flex items-center justify-center rounded-xl bg-gradient-to-br from-[hsl(210,100%,56%)] to-[hsl(216,82%,15%)] p-1.5"
         style={{ width: sizes[size].icon, height: sizes[size].icon }}
       >
         <svg
@@ -59,11 +59,11 @@ const Logo = ({ size = "md", showText = true, className = "" }: LogoProps) => {
           <circle cx="20" cy="16" r="2" fill="white" opacity="0.8" />
           <circle cx="20" cy="10" r="2" fill="white" opacity="0.6" />
         </svg>
-        <div className="absolute inset-0 rounded-xl bg-electric-blue/30 blur-md -z-10" />
+        <div className="absolute inset-0 rounded-xl bg-[hsl(210,100%,56%,0.3)] blur-md -z-10" />
       </div>
       {showText && (
         <span className={`font-bold ${sizes[size].text} tracking-tight`}>
-          <span className="text-foreground">Insight</span>
+          <span className="text-white">Insight</span>
           <span className="gradient-text">Flow</span>
         </span>
       )}
