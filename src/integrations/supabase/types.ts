@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      email_notifications: {
+        Row: {
+          created_at: string
+          email_type: string
+          error_message: string | null
+          id: string
+          processed_at: string | null
+          recipient_email: string
+          status: string
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_type: string
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          recipient_email: string
+          status?: string
+          subject: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          recipient_email?: string
+          status?: string
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
