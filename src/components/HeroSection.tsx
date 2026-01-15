@@ -1,6 +1,8 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Database, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import InstallButton from "@/components/InstallButton";
 
 const HeroSection = () => {
   return (
@@ -102,12 +104,22 @@ const HeroSection = () => {
             </Button>
           </motion.div>
 
-          {/* Feature Pills */}
+          {/* Install PWA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-wrap items-center justify-center gap-4 mt-16"
+            className="mt-6 flex justify-center"
+          >
+            <InstallButton variant="hero" />
+          </motion.div>
+
+          {/* Feature Pills */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="flex flex-wrap items-center justify-center gap-4 mt-10"
           >
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
               <Database className="w-4 h-4 text-[hsl(210,100%,56%)]" />
