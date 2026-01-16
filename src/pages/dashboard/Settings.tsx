@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -51,15 +51,22 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+type ConnectionType = 'postgresql' | 'mysql' | 'sqlserver' | 'oracle';
+type ConnectionStatus = 'connected' | 'disconnected' | 'error';
+
 interface DatabaseConnection {
   id: string;
+  user_id: string;
   name: string;
-  type: 'postgresql' | 'mysql' | 'sqlserver' | 'oracle';
+  type: ConnectionType;
   host: string;
   port: number;
-  database: string;
+  database_name: string;
   username: string;
-  status: 'connected' | 'disconnected' | 'error';
+  encrypted_password?: string | null;
+  status: ConnectionStatus;
+  created_at: string;
+  updated_at: string;
 }
 
 const Settings = () => {
@@ -102,19 +109,45 @@ const Settings = () => {
   // Connection form state
   const [connectionForm, setConnectionForm] = useState({
     name: '',
-    type: 'postgresql' as DatabaseConnection['type'],
+    type: 'postgresql' as ConnectionType,
     host: '',
     port: 5432,
-    database: '',
+    database_name: '',
     username: '',
     password: '',
   });
+
+  // Fetch connections from database
+  const fetchConnections = useCallback(async () => {
+    if (!user) return;
+    
+    setIsLoadingConnections(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_database_connections')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setConnections((data || []) as DatabaseConnection[]);
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+    } finally {
+      setIsLoadingConnections(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (profile?.full_name) {
       setFullName(profile.full_name);
     }
   }, [profile?.full_name]);
+
+  useEffect(() => {
+    fetchConnections();
+  }, [fetchConnections]);
 
   // Generate a mock API key (in production, this would be stored securely)
   useEffect(() => {
@@ -265,7 +298,7 @@ const Settings = () => {
       type: 'postgresql',
       host: '',
       port: 5432,
-      database: '',
+      database_name: '',
       username: '',
       password: '',
     });
@@ -280,7 +313,7 @@ const Settings = () => {
         type: connection.type,
         host: connection.host,
         port: connection.port,
-        database: connection.database,
+        database_name: connection.database_name,
         username: connection.username,
         password: '',
       });
@@ -291,7 +324,7 @@ const Settings = () => {
   };
 
   const handleSaveConnection = async () => {
-    if (!connectionForm.name || !connectionForm.host || !connectionForm.database || !connectionForm.username) {
+    if (!connectionForm.name || !connectionForm.host || !connectionForm.database_name || !connectionForm.username || !user) {
       toast({
         title: 'Campos obrigatórios',
         description: 'Preencha todos os campos obrigatórios',
@@ -302,36 +335,55 @@ const Settings = () => {
 
     setIsSavingConnection(true);
     try {
-      // Simulate saving connection (in production, this would be saved to database)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const newConnection: DatabaseConnection = {
-        id: editingConnection?.id || crypto.randomUUID(),
-        name: connectionForm.name,
-        type: connectionForm.type,
-        host: connectionForm.host,
-        port: connectionForm.port,
-        database: connectionForm.database,
-        username: connectionForm.username,
-        status: 'connected',
-      };
-
       if (editingConnection) {
-        setConnections(prev => prev.map(c => c.id === editingConnection.id ? newConnection : c));
+        // Update existing connection
+        const { error } = await supabase
+          .from('user_database_connections')
+          .update({
+            name: connectionForm.name,
+            type: connectionForm.type,
+            host: connectionForm.host,
+            port: connectionForm.port,
+            database_name: connectionForm.database_name,
+            username: connectionForm.username,
+            encrypted_password: connectionForm.password || editingConnection.encrypted_password,
+            status: 'connected' as ConnectionStatus,
+          })
+          .eq('id', editingConnection.id);
+
+        if (error) throw error;
+
         toast({
           title: 'Conexão atualizada',
-          description: `A conexão "${newConnection.name}" foi atualizada com sucesso`,
+          description: `A conexão "${connectionForm.name}" foi atualizada com sucesso`,
         });
       } else {
-        setConnections(prev => [...prev, newConnection]);
+        // Insert new connection
+        const { error } = await supabase
+          .from('user_database_connections')
+          .insert({
+            user_id: user.id,
+            name: connectionForm.name,
+            type: connectionForm.type,
+            host: connectionForm.host,
+            port: connectionForm.port,
+            database_name: connectionForm.database_name,
+            username: connectionForm.username,
+            encrypted_password: connectionForm.password,
+            status: 'connected' as ConnectionStatus,
+          });
+
+        if (error) throw error;
+
         toast({
           title: 'Conexão adicionada',
-          description: `A conexão "${newConnection.name}" foi adicionada com sucesso`,
+          description: `A conexão "${connectionForm.name}" foi adicionada com sucesso`,
         });
       }
 
       setIsConnectionDialogOpen(false);
       resetConnectionForm();
+      fetchConnections();
     } catch (error) {
       console.error('Error saving connection:', error);
       toast({
@@ -344,14 +396,30 @@ const Settings = () => {
     }
   };
 
-  const handleDeleteConnection = () => {
+  const handleDeleteConnection = async () => {
     if (deleteConnectionId) {
       const connection = connections.find(c => c.id === deleteConnectionId);
-      setConnections(prev => prev.filter(c => c.id !== deleteConnectionId));
-      toast({
-        title: 'Conexão removida',
-        description: `A conexão "${connection?.name}" foi removida com sucesso`,
-      });
+      try {
+        const { error } = await supabase
+          .from('user_database_connections')
+          .delete()
+          .eq('id', deleteConnectionId);
+
+        if (error) throw error;
+
+        toast({
+          title: 'Conexão removida',
+          description: `A conexão "${connection?.name}" foi removida com sucesso`,
+        });
+        fetchConnections();
+      } catch (error) {
+        console.error('Error deleting connection:', error);
+        toast({
+          title: 'Erro ao remover conexão',
+          description: 'Não foi possível remover a conexão',
+          variant: 'destructive',
+        });
+      }
       setDeleteConnectionId(null);
     }
   };
@@ -593,7 +661,7 @@ const Settings = () => {
                           <div>
                             <p className="font-medium">{connection.name}</p>
                             <p className="text-sm text-muted-foreground">
-                              {getConnectionTypeLabel(connection.type)} • {connection.host}:{connection.port}/{connection.database}
+                              {getConnectionTypeLabel(connection.type)} • {connection.host}:{connection.port}/{connection.database_name}
                             </p>
                           </div>
                         </div>
@@ -762,8 +830,8 @@ const Settings = () => {
               <Label htmlFor="connDatabase">Banco de Dados *</Label>
               <Input
                 id="connDatabase"
-                value={connectionForm.database}
-                onChange={(e) => setConnectionForm({ ...connectionForm, database: e.target.value })}
+                value={connectionForm.database_name}
+                onChange={(e) => setConnectionForm({ ...connectionForm, database_name: e.target.value })}
                 placeholder="nome_do_banco"
               />
             </div>
