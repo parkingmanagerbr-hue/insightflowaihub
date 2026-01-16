@@ -14,7 +14,9 @@ import {
   Copy,
   Check,
   RefreshCw,
-  Loader2
+  Loader2,
+  Plug,
+  TestTube
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -105,6 +107,7 @@ const Settings = () => {
   const [deleteConnectionId, setDeleteConnectionId] = useState<string | null>(null);
   const [isLoadingConnections, setIsLoadingConnections] = useState(false);
   const [isSavingConnection, setIsSavingConnection] = useState(false);
+  const [testingConnectionId, setTestingConnectionId] = useState<string | null>(null);
   
   // Connection form state
   const [connectionForm, setConnectionForm] = useState({
@@ -335,6 +338,20 @@ const Settings = () => {
 
     setIsSavingConnection(true);
     try {
+      // Encrypt password if provided
+      let encryptedPassword = editingConnection?.encrypted_password || null;
+      if (connectionForm.password) {
+        const { data: encryptResult, error: encryptError } = await supabase.functions.invoke('encrypt-connection', {
+          body: { action: 'encrypt', text: connectionForm.password }
+        });
+        
+        if (encryptError) {
+          console.error('Encryption error:', encryptError);
+          throw new Error('Falha ao criptografar senha');
+        }
+        encryptedPassword = encryptResult.encrypted;
+      }
+
       if (editingConnection) {
         // Update existing connection
         const { error } = await supabase
@@ -346,8 +363,8 @@ const Settings = () => {
             port: connectionForm.port,
             database_name: connectionForm.database_name,
             username: connectionForm.username,
-            encrypted_password: connectionForm.password || editingConnection.encrypted_password,
-            status: 'connected' as ConnectionStatus,
+            encrypted_password: encryptedPassword,
+            status: 'disconnected' as ConnectionStatus,
           })
           .eq('id', editingConnection.id);
 
@@ -369,8 +386,8 @@ const Settings = () => {
             port: connectionForm.port,
             database_name: connectionForm.database_name,
             username: connectionForm.username,
-            encrypted_password: connectionForm.password,
-            status: 'connected' as ConnectionStatus,
+            encrypted_password: encryptedPassword,
+            status: 'disconnected' as ConnectionStatus,
           });
 
         if (error) throw error;
@@ -388,11 +405,39 @@ const Settings = () => {
       console.error('Error saving connection:', error);
       toast({
         title: 'Erro ao salvar conexão',
-        description: 'Não foi possível salvar a conexão',
+        description: error instanceof Error ? error.message : 'Não foi possível salvar a conexão',
         variant: 'destructive',
       });
     } finally {
       setIsSavingConnection(false);
+    }
+  };
+
+  const handleTestConnection = async (connectionId: string) => {
+    setTestingConnectionId(connectionId);
+    try {
+      const { data, error } = await supabase.functions.invoke('encrypt-connection', {
+        body: { action: 'test-connection', connectionId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: data.success ? 'Conexão válida' : 'Falha na conexão',
+        description: data.message,
+        variant: data.success ? 'default' : 'destructive',
+      });
+
+      fetchConnections();
+    } catch (error) {
+      console.error('Error testing connection:', error);
+      toast({
+        title: 'Erro ao testar conexão',
+        description: 'Não foi possível testar a conexão',
+        variant: 'destructive',
+      });
+    } finally {
+      setTestingConnectionId(null);
     }
   };
 
@@ -669,7 +714,21 @@ const Settings = () => {
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => handleTestConnection(connection.id)}
+                            disabled={testingConnectionId === connection.id}
+                            title="Testar conexão"
+                          >
+                            {testingConnectionId === connection.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Plug className="w-4 h-4" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleOpenConnectionDialog(connection)}
+                            title="Editar"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -677,6 +736,7 @@ const Settings = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => setDeleteConnectionId(connection.id)}
+                            title="Remover"
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
