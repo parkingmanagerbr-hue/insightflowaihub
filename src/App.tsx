@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
+import AIChat from "./pages/dashboard/AIChat";
 import Reports from "./pages/dashboard/Reports";
 import PowerBI from "./pages/dashboard/PowerBI";
 import History from "./pages/dashboard/History";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/admin/reject/:id" element={<UserApprove action="reject" />} />
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
+              <Route path="chat" element={<AIChat />} />
               <Route path="reports" element={<Reports />} />
               <Route path="powerbi" element={<PowerBI />} />
               <Route path="history" element={<History />} />

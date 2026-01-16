@@ -10,7 +10,8 @@ import {
   LayoutDashboard,
   Key,
   Shield,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Dashboard {
   id: string;
@@ -28,6 +30,8 @@ interface Dashboard {
   reportId: string;
   workspaceId: string;
   createdAt: string;
+  embedToken?: string;
+  tokenExpiry?: string;
 }
 
 interface AzureConfig {
@@ -35,6 +39,8 @@ interface AzureConfig {
   tenantId: string;
   clientSecret: string;
 }
+
+const POWERBI_TOKEN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/powerbi-token`;
 
 const PowerBI = () => {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
@@ -45,8 +51,9 @@ const PowerBI = () => {
   const [newDashboard, setNewDashboard] = useState({ name: '', embedUrl: '', reportId: '', workspaceId: '' });
   const [azureConfig, setAzureConfig] = useState<AzureConfig>({ clientId: '', tenantId: '', clientSecret: '' });
   const [isAzureConfigured, setIsAzureConfigured] = useState(false);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isGeneratingToken, setIsGeneratingToken] = useState(false);
   const { toast } = useToast();
+  const { session } = useAuth();
 
   // Load saved config from localStorage
   useEffect(() => {
@@ -90,22 +97,71 @@ const PowerBI = () => {
     });
   };
 
-  const generateEmbedToken = async (reportId: string, workspaceId: string) => {
-    // In production, this would call your backend to get the token
-    // For now, we'll simulate the flow
-    toast({
-      title: 'Gerando token...',
-      description: 'Obtendo token de acesso do Azure AD',
-    });
+  const generateEmbedToken = async (dashboard: Dashboard) => {
+    if (!azureConfig.clientId || !azureConfig.tenantId || !azureConfig.clientSecret) {
+      toast({
+        title: 'Configuração incompleta',
+        description: 'Configure todas as credenciais do Azure AD primeiro',
+        variant: 'destructive',
+      });
+      return null;
+    }
 
-    // Simulate token generation
-    setTimeout(() => {
-      setAccessToken('simulated_access_token');
+    if (!dashboard.workspaceId || !dashboard.reportId) {
+      toast({
+        title: 'IDs necessários',
+        description: 'Informe o Workspace ID e Report ID do dashboard',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    setIsGeneratingToken(true);
+
+    try {
+      const response = await fetch(POWERBI_TOKEN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          tenantId: azureConfig.tenantId,
+          clientId: azureConfig.clientId,
+          clientSecret: azureConfig.clientSecret,
+          workspaceId: dashboard.workspaceId,
+          reportId: dashboard.reportId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.details || data.error || 'Failed to get token');
+      }
+
       toast({
         title: 'Token gerado!',
         description: 'Autenticação com Azure AD realizada com sucesso',
       });
-    }, 1500);
+
+      return {
+        embedToken: data.embedToken,
+        tokenExpiry: data.tokenExpiry,
+        embedUrl: data.embedUrl,
+      };
+
+    } catch (error) {
+      console.error('Token generation error:', error);
+      toast({
+        title: 'Erro ao gerar token',
+        description: error instanceof Error ? error.message : 'Falha na autenticação',
+        variant: 'destructive',
+      });
+      return null;
+    } finally {
+      setIsGeneratingToken(false);
+    }
   };
 
   const handleAddDashboard = () => {
@@ -133,7 +189,7 @@ const PowerBI = () => {
     
     // Generate embed token if Azure is configured
     if (isAzureConfigured && dashboard.reportId && dashboard.workspaceId) {
-      generateEmbedToken(dashboard.reportId, dashboard.workspaceId);
+      generateEmbedToken(dashboard);
     }
     
     toast({
@@ -161,7 +217,7 @@ const PowerBI = () => {
 
   const getEmbedUrl = (dashboard: Dashboard) => {
     let url = dashboard.embedUrl;
-    if (accessToken && url.includes('app.powerbi.com')) {
+    if (dashboard.embedToken && url.includes('app.powerbi.com')) {
       // Add token to URL for authenticated embed
       const separator = url.includes('?') ? '&' : '?';
       url = `${url}${separator}autoAuth=true`;
