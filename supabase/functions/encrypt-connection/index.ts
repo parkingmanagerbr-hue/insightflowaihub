@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Client as PostgresClient } from "https://deno.land/x/postgres@v0.17.0/mod.ts";
+import { Client as MySQLClient } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -73,6 +75,125 @@ async function decrypt(encryptedBase64: string, userId: string): Promise<string>
   return decoder.decode(decrypted);
 }
 
+// Test PostgreSQL connection
+async function testPostgresConnection(
+  host: string,
+  port: number,
+  database: string,
+  username: string,
+  password: string
+): Promise<{ success: boolean; message: string }> {
+  console.log(`Testing PostgreSQL connection to ${host}:${port}/${database}`);
+  const client = new PostgresClient({
+    hostname: host,
+    port: port,
+    database: database,
+    user: username,
+    password: password,
+    tls: { enabled: false },
+    connection: { attempts: 1 },
+  });
+
+  try {
+    await client.connect();
+    const result = await client.queryObject("SELECT 1 as test");
+    console.log('PostgreSQL connection successful:', result);
+    await client.end();
+    return { success: true, message: 'Conexão PostgreSQL estabelecida com sucesso!' };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    console.error('PostgreSQL connection error:', errorMessage);
+    return { success: false, message: `Erro ao conectar: ${errorMessage}` };
+  }
+}
+
+// Test MySQL connection
+async function testMySQLConnection(
+  host: string,
+  port: number,
+  database: string,
+  username: string,
+  password: string
+): Promise<{ success: boolean; message: string }> {
+  console.log(`Testing MySQL connection to ${host}:${port}/${database}`);
+  const client = await new MySQLClient();
+
+  try {
+    await client.connect({
+      hostname: host,
+      port: port,
+      db: database,
+      username: username,
+      password: password,
+    });
+    const result = await client.query("SELECT 1 as test");
+    console.log('MySQL connection successful:', result);
+    await client.close();
+    return { success: true, message: 'Conexão MySQL estabelecida com sucesso!' };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    console.error('MySQL connection error:', errorMessage);
+    return { success: false, message: `Erro ao conectar: ${errorMessage}` };
+  }
+}
+
+// Test SQL Server connection (via TCP socket - basic validation)
+async function testSQLServerConnection(
+  host: string,
+  port: number,
+  _database: string,
+  _username: string,
+  _password: string
+): Promise<{ success: boolean; message: string }> {
+  console.log(`Testing SQL Server connection to ${host}:${port}`);
+  
+  // For SQL Server, we do a basic TCP connection test since Deno doesn't have a native driver
+  // In production, you would use a proper TDS (Tabular Data Stream) library
+  try {
+    const conn = await Deno.connect({
+      hostname: host,
+      port: port,
+    });
+    conn.close();
+    return { 
+      success: true, 
+      message: 'Servidor SQL Server acessível. Nota: validação completa de credenciais requer conexão TDS.' 
+    };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    console.error('SQL Server connection error:', errorMessage);
+    return { success: false, message: `Erro ao conectar: ${errorMessage}` };
+  }
+}
+
+// Test Oracle connection (via TCP socket - basic validation)
+async function testOracleConnection(
+  host: string,
+  port: number,
+  _database: string,
+  _username: string,
+  _password: string
+): Promise<{ success: boolean; message: string }> {
+  console.log(`Testing Oracle connection to ${host}:${port}`);
+  
+  // For Oracle, we do a basic TCP connection test since Deno doesn't have a native driver
+  try {
+    const conn = await Deno.connect({
+      hostname: host,
+      port: port,
+    });
+    conn.close();
+    return { 
+      success: true, 
+      message: 'Servidor Oracle acessível. Nota: validação completa de credenciais requer driver Oracle.' 
+    };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    console.error('Oracle connection error:', errorMessage);
+    return { success: false, message: `Erro ao conectar: ${errorMessage}` };
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -141,7 +262,7 @@ serve(async (req) => {
         .select('encrypted_password')
         .eq('id', connectionId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (connError || !connection) {
         console.error('Connection not found:', connError);
@@ -181,7 +302,7 @@ serve(async (req) => {
         .select('*')
         .eq('id', connectionId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (connError || !connection) {
         console.error('Connection not found:', connError);
@@ -191,24 +312,91 @@ serve(async (req) => {
         );
       }
 
-      // Simulate connection test (in production, you would actually try to connect)
-      // For now, we'll just validate the parameters are present
-      const isValid = connection.host && connection.port && connection.database_name && connection.username;
+      // Validate required parameters
+      if (!connection.host || !connection.port || !connection.database_name || !connection.username) {
+        await supabase
+          .from('user_database_connections')
+          .update({ status: 'error' })
+          .eq('id', connectionId);
+
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            status: 'error',
+            message: 'Parâmetros de conexão incompletos'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Decrypt password if exists
+      let password = '';
+      if (connection.encrypted_password) {
+        try {
+          password = await decrypt(connection.encrypted_password, user.id);
+        } catch (decryptError) {
+          console.error('Failed to decrypt password:', decryptError);
+        }
+      }
+
+      // Test connection based on type
+      let result: { success: boolean; message: string };
       
+      switch (connection.type) {
+        case 'postgresql':
+          result = await testPostgresConnection(
+            connection.host,
+            connection.port,
+            connection.database_name,
+            connection.username,
+            password
+          );
+          break;
+        case 'mysql':
+          result = await testMySQLConnection(
+            connection.host,
+            connection.port,
+            connection.database_name,
+            connection.username,
+            password
+          );
+          break;
+        case 'sqlserver':
+          result = await testSQLServerConnection(
+            connection.host,
+            connection.port,
+            connection.database_name,
+            connection.username,
+            password
+          );
+          break;
+        case 'oracle':
+          result = await testOracleConnection(
+            connection.host,
+            connection.port,
+            connection.database_name,
+            connection.username,
+            password
+          );
+          break;
+        default:
+          result = { success: false, message: `Tipo de banco não suportado: ${connection.type}` };
+      }
+
       // Update connection status
-      const newStatus = isValid ? 'connected' : 'error';
+      const newStatus = result.success ? 'connected' : 'error';
       await supabase
         .from('user_database_connections')
         .update({ status: newStatus })
         .eq('id', connectionId);
 
-      console.log(`Connection test result: ${newStatus}`);
+      console.log(`Connection test result: ${newStatus} - ${result.message}`);
 
       return new Response(
         JSON.stringify({ 
-          success: isValid, 
+          success: result.success, 
           status: newStatus,
-          message: isValid ? 'Conexão validada com sucesso' : 'Parâmetros de conexão inválidos'
+          message: result.message
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
