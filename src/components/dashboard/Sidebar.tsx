@@ -11,6 +11,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,6 +28,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+    { icon: MessageSquare, label: 'AI Chat', path: '/dashboard/chat' },
     { icon: FileText, label: 'Gerar Relatório', path: '/dashboard/reports' },
     { icon: BarChart3, label: 'Power BI', path: '/dashboard/powerbi' },
     { icon: History, label: 'Histórico', path: '/dashboard/history' },

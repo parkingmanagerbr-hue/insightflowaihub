@@ -14,7 +14,9 @@ interface EmailRequest {
 }
 
 const ADMIN_EMAIL = "mrovariz@hotmail.com";
-const APP_NAME = "InsightFlow";
+const APP_NAME = "InsightFlow AI Hub";
+const SENDER_EMAIL = "InsightFlowAIHub@outlook.com";
+const SENDER_NAME = "InsightFlow AI Hub";
 
 // Generate HTML email templates
 const generateApprovalRequestEmail = (userName: string, userEmail: string, userId: string, baseUrl: string) => `
@@ -102,7 +104,7 @@ const generateApprovedEmail = (userName: string) => `
       <p>Olá${userName ? `, ${userName}` : ''}!</p>
       <p>Temos o prazer de informar que sua solicitação de acesso ao ${APP_NAME} foi <strong>aprovada</strong>.</p>
       <p>Agora você pode acessar todas as funcionalidades da plataforma para criar relatórios inteligentes com Gemini AI e Power BI.</p>
-      <a href="https://id-preview--5710bd11-2adb-4b48-81e5-172e56ec35c9.lovable.app/auth" class="button">Acessar o Sistema</a>
+      <a href="https://insightflowaihub.lovable.app/auth" class="button">Acessar o Sistema</a>
     </div>
     <div class="footer">
       <p>Este email foi enviado automaticamente pelo ${APP_NAME}.<br>Por favor, não responda a este email.</p>
@@ -195,13 +197,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const brevoApiKey = Deno.env.get("BREVO_API_KEY");
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
     // Get base URL for email links
-    const baseUrl = "https://id-preview--5710bd11-2adb-4b48-81e5-172e56ec35c9.lovable.app";
+    const baseUrl = "https://insightflowaihub.lovable.app";
     
     let emailTo: string;
     let emailSubject: string;
@@ -230,11 +233,7 @@ const handler = async (req: Request): Promise<Response> => {
         );
     }
 
-    // Use Supabase Auth Admin API to send email
-    // This leverages the internal Supabase SMTP for auth-related communications
-    // For production, you would configure a custom SMTP or use Supabase's built-in email service
-    
-    // Store email notification in a table for tracking (optional)
+    // Store email notification in a table for tracking
     const { error: insertError } = await supabase
       .from("email_notifications")
       .insert({
@@ -250,43 +249,118 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Note: email_notifications table may not exist, continuing without tracking:", insertError.message);
     }
 
-    // Log email details (without sensitive content)
-    console.log("Email notification processed:", {
-      type: body.type,
-      to: emailTo,
-      subject: emailSubject,
-      userId: body.userId,
-      timestamp: new Date().toISOString()
-    });
+    // Send email via Brevo API
+    if (brevoApiKey) {
+      try {
+        console.log("Sending email via Brevo to:", emailTo);
+        
+        const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "api-key": brevoApiKey,
+          },
+          body: JSON.stringify({
+            sender: {
+              name: SENDER_NAME,
+              email: SENDER_EMAIL,
+            },
+            to: [{ email: emailTo }],
+            subject: emailSubject,
+            htmlContent: emailHtml,
+          }),
+        });
 
-    // Since Supabase doesn't have a direct internal SMTP API for custom emails,
-    // we'll use the Auth Admin API for user-related notifications when possible
-    // For the MVP, we'll log the email and update the notification record
-    
-    // Update status to indicate email was processed
-    if (!insertError) {
-      await supabase
-        .from("email_notifications")
-        .update({ status: "processed", processed_at: new Date().toISOString() })
-        .eq("user_id", body.userId)
-        .eq("email_type", body.type)
-        .order("created_at", { ascending: false })
-        .limit(1);
-    }
+        const brevoResult = await brevoResponse.json();
+        
+        if (!brevoResponse.ok) {
+          console.error("Brevo API error:", brevoResult);
+          
+          // Update notification status to failed
+          if (!insertError) {
+            await supabase
+              .from("email_notifications")
+              .update({ 
+                status: "failed", 
+                error_message: JSON.stringify(brevoResult),
+                processed_at: new Date().toISOString() 
+              })
+              .eq("user_id", body.userId)
+              .eq("email_type", body.type)
+              .order("created_at", { ascending: false })
+              .limit(1);
+          }
+          
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: "Failed to send email via Brevo",
+              details: brevoResult 
+            }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: `Email notification of type '${body.type}' processed successfully`,
-        recipient: emailTo,
-        // In production with external SMTP configured, this would contain the actual send result
-        note: "Email logged. Configure Resend or external SMTP for actual delivery."
-      }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        console.log("Email sent successfully via Brevo:", brevoResult);
+
+        // Update notification status to sent
+        if (!insertError) {
+          await supabase
+            .from("email_notifications")
+            .update({ status: "sent", processed_at: new Date().toISOString() })
+            .eq("user_id", body.userId)
+            .eq("email_type", body.type)
+            .order("created_at", { ascending: false })
+            .limit(1);
+        }
+
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: `Email of type '${body.type}' sent successfully via Brevo`,
+            recipient: emailTo,
+            messageId: brevoResult.messageId
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+
+      } catch (brevoError) {
+        console.error("Brevo sending error:", brevoError);
+        
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: "Failed to send email",
+            details: brevoError instanceof Error ? brevoError.message : "Unknown error"
+          }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
-    );
+    } else {
+      console.log("BREVO_API_KEY not configured. Email logged but not sent.");
+      
+      // Update status to indicate email was logged only
+      if (!insertError) {
+        await supabase
+          .from("email_notifications")
+          .update({ status: "logged", processed_at: new Date().toISOString() })
+          .eq("user_id", body.userId)
+          .eq("email_type", body.type)
+          .order("created_at", { ascending: false })
+          .limit(1);
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: `Email notification of type '${body.type}' logged (BREVO_API_KEY not configured)`,
+          recipient: emailTo,
+          note: "Configure BREVO_API_KEY secret for actual email delivery"
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
