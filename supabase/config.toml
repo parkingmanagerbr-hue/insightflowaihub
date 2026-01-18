@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.encrypt-connection]
 verify_jwt = false
+
+[functions.execute-sql]
+verify_jwt = false
