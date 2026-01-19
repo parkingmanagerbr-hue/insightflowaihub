@@ -12,6 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageSquare,
+  Play,
+  Download,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,7 +33,8 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
     { icon: MessageSquare, label: 'AI Chat', path: '/dashboard/chat' },
     { icon: FileText, label: 'Gerar Relatório', path: '/dashboard/reports' },
     { icon: BarChart3, label: 'Power BI', path: '/dashboard/powerbi' },
-    { icon: History, label: 'Histórico', path: '/dashboard/history' },
+    { icon: History, label: 'Histórico SQL', path: '/dashboard/history' },
+    { icon: Play, label: 'Execuções', path: '/dashboard/executions' },
     { icon: Settings, label: 'Configurações', path: '/dashboard/settings' },
   ];
 

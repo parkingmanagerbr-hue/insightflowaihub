@@ -15,7 +15,10 @@ import {
   Table,
   ChevronDown,
   ChevronUp,
-  AlertCircle
+  AlertCircle,
+  Download,
+  FileSpreadsheet,
+  FileJson
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,8 +26,15 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useExportData } from '@/hooks/useExportData';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -72,6 +82,7 @@ const History = () => {
   const [showResults, setShowResults] = useState(false);
   const { toast } = useToast();
   const { session } = useAuth();
+  const { exportToCSV, exportToExcel, exportToJSON } = useExportData();
 
   const fetchHistory = useCallback(async () => {
     try {
@@ -190,6 +201,31 @@ const History = () => {
       });
     } finally {
       setExecuting(false);
+    }
+  };
+
+  const handleExport = (format: 'csv' | 'excel' | 'json') => {
+    if (!queryResult?.data || !queryResult?.columns) {
+      toast({
+        title: 'Sem dados',
+        description: 'Execute a query primeiro para exportar os resultados',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const filename = `query_${selectedQuery?.id?.slice(0, 8) || 'result'}`;
+
+    switch (format) {
+      case 'csv':
+        exportToCSV(queryResult.data, queryResult.columns, { filename });
+        break;
+      case 'excel':
+        exportToExcel(queryResult.data, queryResult.columns, { filename });
+        break;
+      case 'json':
+        exportToJSON(queryResult.data, { filename });
+        break;
     }
   };
 
@@ -387,6 +423,28 @@ const History = () => {
                       )}
                       Executar
                     </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" disabled={!queryResult?.success}>
+                          <Download className="w-4 h-4 mr-1" />
+                          Exportar
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => handleExport('csv')}>
+                          <FileSpreadsheet className="w-4 h-4 mr-2" />
+                          CSV
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleExport('excel')}>
+                          <FileSpreadsheet className="w-4 h-4 mr-2" />
+                          Excel
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleExport('json')}>
+                          <FileJson className="w-4 h-4 mr-2" />
+                          JSON
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 )}
               </div>

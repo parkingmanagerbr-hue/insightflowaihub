@@ -187,7 +187,7 @@ serve(async (req) => {
       );
     }
 
-    const { connectionId, sql } = await req.json();
+    const { connectionId, sql, queryHistoryId, saveExecution = true } = await req.json();
     console.log(`Processing SQL execution for user ${user.id} on connection ${connectionId}`);
 
     if (!connectionId) {
@@ -303,12 +303,53 @@ serve(async (req) => {
         );
     }
 
+    // Save execution to history if requested
+    let executionId: string | null = null;
+    if (saveExecution) {
+      try {
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const adminSupabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        // Store only first 100 rows as preview
+        const resultPreview = result.data ? result.data.slice(0, 100) : null;
+
+        const { data: execution, error: insertError } = await adminSupabase
+          .from('sql_query_executions')
+          .insert({
+            user_id: user.id,
+            query_history_id: queryHistoryId || null,
+            connection_id: connectionId,
+            connection_name: connection.name,
+            database_type: connection.type,
+            executed_sql: sql,
+            success: result.success,
+            row_count: result.rowCount || 0,
+            columns: result.columns || [],
+            result_preview: resultPreview,
+            error_message: result.error || null,
+            execution_time_ms: result.executionTimeMs,
+          })
+          .select('id')
+          .single();
+
+        if (insertError) {
+          console.error('Failed to save execution:', insertError);
+        } else {
+          executionId = execution?.id || null;
+          console.log('Execution saved with ID:', executionId);
+        }
+      } catch (saveError) {
+        console.error('Error saving execution:', saveError);
+      }
+    }
+
     if (!result.success) {
       return new Response(
         JSON.stringify({ 
           success: false,
           error: result.error,
-          executionTimeMs: result.executionTimeMs
+          executionTimeMs: result.executionTimeMs,
+          executionId
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -324,7 +365,8 @@ serve(async (req) => {
         rowCount: result.rowCount,
         executionTimeMs: result.executionTimeMs,
         connectionName: connection.name,
-        databaseType: connection.type
+        databaseType: connection.type,
+        executionId
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

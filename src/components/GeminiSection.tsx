@@ -1,11 +1,29 @@
 import { motion } from "framer-motion";
-import { Sparkles, Code, PieChart, FileText, MessageSquare } from "lucide-react";
+import { 
+  Sparkles, Code, PieChart, FileText, MessageSquare, 
+  Play, Download, Database, Table 
+} from "lucide-react";
 
 const geminiCapabilities = [
   {
     icon: Code,
     title: "Geração de SQL",
     description: "Descreva em português o que você precisa e a IA gera o SQL perfeito."
+  },
+  {
+    icon: Play,
+    title: "Execução Direta",
+    description: "Execute a query gerada diretamente no seu banco de dados conectado."
+  },
+  {
+    icon: Table,
+    title: "Visualização de Resultados",
+    description: "Veja os resultados em tabela com preview de até 100 registros."
+  },
+  {
+    icon: Download,
+    title: "Exportação Flexível",
+    description: "Exporte resultados para CSV, Excel ou JSON instantaneamente."
   },
   {
     icon: PieChart,
@@ -55,7 +73,7 @@ const GeminiSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Chat Preview */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -85,48 +103,59 @@ const GeminiSection = () => {
               {/* AI Response */}
               <div className="flex justify-start">
                 <div className="bg-white/10 text-white px-4 py-3 rounded-2xl rounded-tl-sm max-w-[85%]">
-                  <p className="text-sm mb-3">Aqui está a análise de vendas por região:</p>
+                  <p className="text-sm mb-3">Aqui está a query SQL para sua solicitação:</p>
                   <div className="bg-white/5 rounded-lg p-3 mb-3">
                     <code className="text-xs text-electric-blue-light font-mono">
-                      SELECT region, SUM(amount)<br/>
+                      SELECT region, SUM(amount) as total<br/>
                       FROM sales<br/>
                       WHERE date {'>'} NOW() - INTERVAL '3 months'<br/>
-                      GROUP BY region
+                      GROUP BY region<br/>
+                      ORDER BY total DESC
                     </code>
                   </div>
-                  <p className="text-sm text-white/70">
-                    📊 Sudeste lidera com R$ 2.5M (+15%)<br/>
-                    📈 Sul teve maior crescimento: +23%
-                  </p>
+                  <div className="flex gap-2 mt-3">
+                    <button className="flex items-center gap-1 px-3 py-1 rounded-lg bg-electric-blue/20 text-electric-blue text-xs hover:bg-electric-blue/30 transition-colors">
+                      <Play className="w-3 h-3" />
+                      Executar
+                    </button>
+                    <button className="flex items-center gap-1 px-3 py-1 rounded-lg bg-white/10 text-white/70 text-xs hover:bg-white/20 transition-colors">
+                      <Download className="w-3 h-3" />
+                      Exportar
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* User Follow-up */}
-              <div className="flex justify-end">
-                <div className="bg-electric-blue text-white px-4 py-2 rounded-2xl rounded-tr-sm max-w-[80%]">
-                  <p className="text-sm">Gere um gráfico comparativo</p>
-                </div>
-              </div>
-
-              {/* Typing Indicator */}
+              {/* Result Preview */}
               <div className="flex justify-start">
-                <div className="bg-white/10 px-4 py-3 rounded-2xl rounded-tl-sm">
-                  <div className="flex gap-1">
-                    <motion.div 
-                      className="w-2 h-2 bg-electric-blue rounded-full"
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-                    />
-                    <motion.div 
-                      className="w-2 h-2 bg-electric-blue rounded-full"
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
-                    />
-                    <motion.div 
-                      className="w-2 h-2 bg-electric-blue rounded-full"
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
-                    />
+                <div className="bg-white/10 text-white px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%]">
+                  <p className="text-sm mb-2 flex items-center gap-2">
+                    <Table className="w-4 h-4 text-green-400" />
+                    <span className="text-green-400">✓ 4 registros em 125ms</span>
+                  </p>
+                  <div className="bg-white/5 rounded-lg overflow-hidden">
+                    <table className="w-full text-xs">
+                      <thead className="bg-white/10">
+                        <tr>
+                          <th className="px-3 py-1.5 text-left">Região</th>
+                          <th className="px-3 py-1.5 text-right">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-t border-white/5">
+                          <td className="px-3 py-1.5">Sudeste</td>
+                          <td className="px-3 py-1.5 text-right text-green-400">R$ 2.5M</td>
+                        </tr>
+                        <tr className="border-t border-white/5">
+                          <td className="px-3 py-1.5">Sul</td>
+                          <td className="px-3 py-1.5 text-right text-green-400">R$ 1.8M</td>
+                        </tr>
+                        <tr className="border-t border-white/5">
+                          <td className="px-3 py-1.5">Nordeste</td>
+                          <td className="px-3 py-1.5 text-right text-green-400">R$ 1.2M</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -141,7 +170,7 @@ const GeminiSection = () => {
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
                 className="flex items-start gap-4 p-4 rounded-xl glass-dark border border-white/10"
               >
                 <div className="w-10 h-10 rounded-lg bg-electric-blue/20 flex items-center justify-center flex-shrink-0">

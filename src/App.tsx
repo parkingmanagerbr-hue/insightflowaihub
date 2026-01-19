@@ -14,6 +14,7 @@ import AIChat from "./pages/dashboard/AIChat";
 import Reports from "./pages/dashboard/Reports";
 import PowerBI from "./pages/dashboard/PowerBI";
 import History from "./pages/dashboard/History";
+import Executions from "./pages/dashboard/Executions";
 import Settings from "./pages/dashboard/Settings";
 import Admin from "./pages/dashboard/Admin";
 import UserApprove from "./pages/admin/UserApprove";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="reports" element={<Reports />} />
               <Route path="powerbi" element={<PowerBI />} />
               <Route path="history" element={<History />} />
+              <Route path="executions" element={<Executions />} />
               <Route path="settings" element={<Settings />} />
               <Route path="admin" element={<Admin />} />
             </Route>
