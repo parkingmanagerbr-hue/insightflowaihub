@@ -1,24 +1,25 @@
 import { motion } from "framer-motion";
 import { 
   Database, Sparkles, FileText, BarChart3, History, Clock, 
-  Upload, Users, FileCode, MessageSquare, TrendingUp, Zap, Globe 
+  Upload, Users, FileCode, MessageSquare, TrendingUp, Zap, Globe,
+  Download, Shield, Play, Key, Table, RefreshCw
 } from "lucide-react";
 
 const features = [
   {
     icon: Database,
-    title: "Conexão com Banco de Dados",
-    description: "Conecte-se a PostgreSQL, MySQL, SQL Server, Oracle e mais."
+    title: "Conexão Multi-Banco",
+    description: "PostgreSQL, MySQL, SQL Server, Oracle com criptografia segura de credenciais."
   },
   {
     icon: Sparkles,
-    title: "SQL Automático com Gemini",
-    description: "Descreva o que precisa em linguagem natural, IA gera o SQL."
+    title: "SQL Automático com IA",
+    description: "Descreva em linguagem natural, Gemini AI gera o SQL otimizado."
   },
   {
-    icon: FileText,
-    title: "Relatórios Inteligentes",
-    description: "Criação automática de relatórios baseada nos seus dados."
+    icon: Play,
+    title: "Execução Direta",
+    description: "Execute queries geradas diretamente no seu banco de dados."
   },
   {
     icon: BarChart3,
@@ -27,33 +28,48 @@ const features = [
   },
   {
     icon: History,
-    title: "Histórico de Relatórios",
-    description: "Acesse, reutilize e compare relatórios anteriores."
+    title: "Histórico Completo",
+    description: "Acesse todas as queries SQL geradas com opção de re-executar."
   },
   {
-    icon: Clock,
-    title: "Agendamento Automático",
-    description: "Programe relatórios para serem gerados periodicamente."
+    icon: Table,
+    title: "Resultados Salvos",
+    description: "Histórico de execuções com preview dos resultados."
   },
   {
-    icon: Upload,
-    title: "Upload de CSV/Excel",
-    description: "Importe planilhas para análise rápida com IA."
+    icon: Download,
+    title: "Exportar Resultados",
+    description: "Exporte dados para CSV, Excel ou JSON com um clique."
   },
   {
-    icon: Users,
-    title: "Multi-tenant",
-    description: "Cada organização com seus próprios dados e usuários."
+    icon: Key,
+    title: "Criptografia Segura",
+    description: "Senhas criptografadas com AES-GCM e chave única por usuário."
   },
   {
-    icon: FileCode,
-    title: "Templates Prontos",
-    description: "Comece rapidamente com templates pré-configurados."
+    icon: FileText,
+    title: "Relatórios Inteligentes",
+    description: "Criação automática de relatórios baseada nos seus dados."
+  },
+  {
+    icon: Shield,
+    title: "Queries Seguras",
+    description: "Apenas SELECT permitido, proteção contra SQL injection."
   },
   {
     icon: MessageSquare,
     title: "Chat Analítico",
-    description: "Converse com seus dados usando linguagem natural."
+    description: "Converse com a IA sobre dados, SQL e Power BI."
+  },
+  {
+    icon: RefreshCw,
+    title: "Re-executar Queries",
+    description: "Re-execute qualquer query do histórico em segundos."
+  },
+  {
+    icon: Users,
+    title: "Multi-tenant",
+    description: "Cada usuário com seus próprios dados e conexões."
   },
   {
     icon: TrendingUp,
@@ -62,8 +78,8 @@ const features = [
   },
   {
     icon: Zap,
-    title: "Cache Inteligente",
-    description: "Respostas rápidas com cache otimizado por IA."
+    title: "Alta Performance",
+    description: "Execução rápida com feedback em tempo real."
   },
   {
     icon: Globe,
@@ -98,7 +114,7 @@ const FeaturesSection = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.05 }}
+              transition={{ duration: 0.5, delay: index * 0.03 }}
               className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300"
             >
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">

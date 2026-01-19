@@ -80,6 +80,72 @@ export type Database = {
         }
         Relationships: []
       }
+      sql_query_executions: {
+        Row: {
+          columns: Json | null
+          connection_id: string | null
+          connection_name: string
+          created_at: string
+          database_type: string
+          error_message: string | null
+          executed_sql: string
+          execution_time_ms: number | null
+          id: string
+          query_history_id: string | null
+          result_preview: Json | null
+          row_count: number | null
+          success: boolean
+          user_id: string
+        }
+        Insert: {
+          columns?: Json | null
+          connection_id?: string | null
+          connection_name: string
+          created_at?: string
+          database_type: string
+          error_message?: string | null
+          executed_sql: string
+          execution_time_ms?: number | null
+          id?: string
+          query_history_id?: string | null
+          result_preview?: Json | null
+          row_count?: number | null
+          success?: boolean
+          user_id: string
+        }
+        Update: {
+          columns?: Json | null
+          connection_id?: string | null
+          connection_name?: string
+          created_at?: string
+          database_type?: string
+          error_message?: string | null
+          executed_sql?: string
+          execution_time_ms?: number | null
+          id?: string
+          query_history_id?: string | null
+          result_preview?: Json | null
+          row_count?: number | null
+          success?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sql_query_executions_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "user_database_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sql_query_executions_query_history_id_fkey"
+            columns: ["query_history_id"]
+            isOneToOne: false
+            referencedRelation: "sql_query_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sql_query_history: {
         Row: {
           context: string | null
