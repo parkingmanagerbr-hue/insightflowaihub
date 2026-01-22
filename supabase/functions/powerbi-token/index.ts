@@ -7,11 +7,52 @@ const corsHeaders = {
 };
 
 interface TokenRequest {
-  tenantId: string;
-  clientId: string;
-  clientSecret: string;
   workspaceId?: string;
   reportId?: string;
+}
+
+// Decrypt function - must match encrypt-connection
+async function deriveKey(userId: string, salt: ArrayBuffer): Promise<CryptoKey> {
+  const encoder = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(userId),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: salt,
+      iterations: 100000,
+      hash: "SHA-256",
+    },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+async function decrypt(encryptedBase64: string, userId: string): Promise<string> {
+  const decoder = new TextDecoder();
+  const combined = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+
+  const salt = combined.slice(0, 16);
+  const iv = combined.slice(16, 28);
+  const encrypted = combined.slice(28);
+
+  const key = await deriveKey(userId, salt.buffer.slice(salt.byteOffset, salt.byteOffset + salt.byteLength));
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: iv },
+    key,
+    encrypted
+  );
+
+  return decoder.decode(decrypted);
 }
 
 serve(async (req) => {
@@ -45,24 +86,51 @@ serve(async (req) => {
       );
     }
 
-    const body: TokenRequest = await req.json();
-    
-    if (!body.tenantId || !body.clientId || !body.clientSecret) {
+    // Fetch Azure config from database (secure server-side storage)
+    const { data: azureConfig, error: configError } = await supabase
+      .from('user_azure_configs')
+      .select('tenant_id, client_id, encrypted_client_secret')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (configError) {
+      console.error("Error fetching Azure config:", configError);
       return new Response(
-        JSON.stringify({ error: "Missing required Azure AD credentials" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Failed to retrieve Azure configuration" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Requesting Azure AD token for tenant:", body.tenantId);
+    if (!azureConfig) {
+      return new Response(
+        JSON.stringify({ error: "Azure AD configuration not found. Please configure your Azure AD credentials first.", configured: false }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Decrypt the client secret
+    let clientSecret: string;
+    try {
+      clientSecret = await decrypt(azureConfig.encrypted_client_secret, user.id);
+    } catch (decryptError) {
+      console.error("Failed to decrypt client secret:", decryptError);
+      return new Response(
+        JSON.stringify({ error: "Failed to decrypt Azure credentials" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const body: TokenRequest = await req.json();
+    
+    console.log("Requesting Azure AD token for tenant:", azureConfig.tenant_id);
 
     // Step 1: Get Azure AD access token
-    const tokenUrl = `https://login.microsoftonline.com/${body.tenantId}/oauth2/v2.0/token`;
+    const tokenUrl = `https://login.microsoftonline.com/${azureConfig.tenant_id}/oauth2/v2.0/token`;
     
     const tokenParams = new URLSearchParams({
       grant_type: "client_credentials",
-      client_id: body.clientId,
-      client_secret: body.clientSecret,
+      client_id: azureConfig.client_id,
+      client_secret: clientSecret,
       scope: "https://analysis.windows.net/powerbi/api/.default",
     });
 

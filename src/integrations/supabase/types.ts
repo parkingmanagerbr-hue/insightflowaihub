@@ -179,6 +179,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_azure_configs: {
+        Row: {
+          client_id: string
+          created_at: string
+          encrypted_client_secret: string
+          id: string
+          tenant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          encrypted_client_secret: string
+          id?: string
+          tenant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          encrypted_client_secret?: string
+          id?: string
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_database_connections: {
         Row: {
           created_at: string

@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.execute-sql]
 verify_jwt = false
+
+[functions.azure-config]
+verify_jwt = false
