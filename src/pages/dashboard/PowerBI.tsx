@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, 
@@ -11,7 +11,9 @@ import {
   Key,
   Shield,
   AlertCircle,
-  Loader2
+  Loader2,
+  Trash2,
+  Check
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +24,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Dashboard {
   id: string;
@@ -34,13 +37,21 @@ interface Dashboard {
   tokenExpiry?: string;
 }
 
-interface AzureConfig {
+interface AzureConfigInput {
   clientId: string;
   tenantId: string;
   clientSecret: string;
 }
 
+interface AzureConfigDisplay {
+  tenantId: string;
+  clientId: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 const POWERBI_TOKEN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/powerbi-token`;
+const AZURE_CONFIG_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/azure-config`;
 
 const PowerBI = () => {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
@@ -49,59 +60,182 @@ const PowerBI = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
   const [newDashboard, setNewDashboard] = useState({ name: '', embedUrl: '', reportId: '', workspaceId: '' });
-  const [azureConfig, setAzureConfig] = useState<AzureConfig>({ clientId: '', tenantId: '', clientSecret: '' });
+  const [azureConfigInput, setAzureConfigInput] = useState<AzureConfigInput>({ clientId: '', tenantId: '', clientSecret: '' });
+  const [azureConfigDisplay, setAzureConfigDisplay] = useState<AzureConfigDisplay | null>(null);
   const [isAzureConfigured, setIsAzureConfigured] = useState(false);
   const [isGeneratingToken, setIsGeneratingToken] = useState(false);
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
+  const [isDeletingConfig, setIsDeletingConfig] = useState(false);
   const { toast } = useToast();
   const { session } = useAuth();
 
-  // Load saved config from localStorage
-  useEffect(() => {
-    const savedConfig = localStorage.getItem('powerbi_azure_config');
-    if (savedConfig) {
-      const config = JSON.parse(savedConfig);
-      setAzureConfig(config);
-      setIsAzureConfigured(true);
-    }
+  // Check Azure config from secure backend
+  const checkAzureConfig = useCallback(async () => {
+    if (!session?.access_token) return;
     
+    setIsLoadingConfig(true);
+    try {
+      const response = await fetch(AZURE_CONFIG_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ action: 'check' }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.configured) {
+        setIsAzureConfigured(true);
+        setAzureConfigDisplay(data.config);
+        // Pre-fill the form with existing IDs (not secret)
+        setAzureConfigInput(prev => ({
+          ...prev,
+          tenantId: data.config.tenantId || '',
+          clientId: data.config.clientId || '',
+        }));
+      } else {
+        setIsAzureConfigured(false);
+        setAzureConfigDisplay(null);
+      }
+    } catch (error) {
+      console.error('Error checking Azure config:', error);
+    } finally {
+      setIsLoadingConfig(false);
+    }
+  }, [session?.access_token]);
+
+  // Load config on mount
+  useEffect(() => {
+    checkAzureConfig();
+    
+    // Load dashboards from localStorage (non-sensitive data only)
     const savedDashboards = localStorage.getItem('powerbi_dashboards');
     if (savedDashboards) {
       setDashboards(JSON.parse(savedDashboards));
     }
-  }, []);
+  }, [checkAzureConfig]);
 
-  // Save dashboards to localStorage
+  // Save dashboards to localStorage (non-sensitive data)
   useEffect(() => {
     if (dashboards.length > 0) {
       localStorage.setItem('powerbi_dashboards', JSON.stringify(dashboards));
     }
   }, [dashboards]);
 
-  const handleSaveAzureConfig = () => {
-    if (!azureConfig.clientId || !azureConfig.tenantId) {
+  const handleSaveAzureConfig = async () => {
+    if (!azureConfigInput.clientId || !azureConfigInput.tenantId || !azureConfigInput.clientSecret) {
       toast({
         title: 'Atenção',
-        description: 'Preencha pelo menos o Client ID e Tenant ID',
+        description: 'Preencha todos os campos: Client ID, Tenant ID e Client Secret',
         variant: 'destructive',
       });
       return;
     }
 
-    localStorage.setItem('powerbi_azure_config', JSON.stringify(azureConfig));
-    setIsAzureConfigured(true);
-    setIsConfigDialogOpen(false);
-    
-    toast({
-      title: 'Configuração salva!',
-      description: 'As credenciais do Azure AD foram configuradas',
-    });
+    if (!session?.access_token) {
+      toast({
+        title: 'Erro',
+        description: 'Você precisa estar autenticado',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSavingConfig(true);
+    try {
+      const response = await fetch(AZURE_CONFIG_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          action: 'save',
+          tenantId: azureConfigInput.tenantId,
+          clientId: azureConfigInput.clientId,
+          clientSecret: azureConfigInput.clientSecret,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Falha ao salvar configuração');
+      }
+
+      setIsAzureConfigured(true);
+      setIsConfigDialogOpen(false);
+      // Clear the secret from state after saving
+      setAzureConfigInput(prev => ({ ...prev, clientSecret: '' }));
+      
+      // Refresh config display
+      await checkAzureConfig();
+      
+      toast({
+        title: 'Configuração salva!',
+        description: 'As credenciais do Azure AD foram armazenadas de forma segura',
+      });
+    } catch (error) {
+      console.error('Error saving Azure config:', error);
+      toast({
+        title: 'Erro ao salvar',
+        description: error instanceof Error ? error.message : 'Falha ao salvar configuração',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSavingConfig(false);
+    }
+  };
+
+  const handleDeleteAzureConfig = async () => {
+    if (!session?.access_token) return;
+
+    setIsDeletingConfig(true);
+    try {
+      const response = await fetch(AZURE_CONFIG_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ action: 'delete' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Falha ao remover configuração');
+      }
+
+      setIsAzureConfigured(false);
+      setAzureConfigDisplay(null);
+      setAzureConfigInput({ clientId: '', tenantId: '', clientSecret: '' });
+      setIsConfigDialogOpen(false);
+      
+      toast({
+        title: 'Configuração removida',
+        description: 'As credenciais do Azure AD foram removidas',
+      });
+    } catch (error) {
+      console.error('Error deleting Azure config:', error);
+      toast({
+        title: 'Erro ao remover',
+        description: error instanceof Error ? error.message : 'Falha ao remover configuração',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeletingConfig(false);
+    }
   };
 
   const generateEmbedToken = async (dashboard: Dashboard) => {
-    if (!azureConfig.clientId || !azureConfig.tenantId || !azureConfig.clientSecret) {
+    if (!isAzureConfigured) {
       toast({
         title: 'Configuração incompleta',
-        description: 'Configure todas as credenciais do Azure AD primeiro',
+        description: 'Configure as credenciais do Azure AD primeiro',
         variant: 'destructive',
       });
       return null;
@@ -126,9 +260,6 @@ const PowerBI = () => {
           'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
-          tenantId: azureConfig.tenantId,
-          clientId: azureConfig.clientId,
-          clientSecret: azureConfig.clientSecret,
           workspaceId: dashboard.workspaceId,
           reportId: dashboard.reportId,
         }),
@@ -137,6 +268,10 @@ const PowerBI = () => {
       const data = await response.json();
 
       if (!response.ok) {
+        if (data.configured === false) {
+          setIsAzureConfigured(false);
+          throw new Error('Configure suas credenciais do Azure AD primeiro');
+        }
         throw new Error(data.details || data.error || 'Failed to get token');
       }
 
@@ -245,9 +380,15 @@ const PowerBI = () => {
         <div className="flex gap-2">
           <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">
-                <Key className="w-4 h-4 mr-2" />
-                Configurar Azure AD
+              <Button variant="outline" disabled={isLoadingConfig}>
+                {isLoadingConfig ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : isAzureConfigured ? (
+                  <Check className="w-4 h-4 mr-2 text-green-500" />
+                ) : (
+                  <Key className="w-4 h-4 mr-2" />
+                )}
+                {isAzureConfigured ? 'Azure AD Configurado' : 'Configurar Azure AD'}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-lg">
@@ -257,25 +398,43 @@ const PowerBI = () => {
                   Configurar Azure AD
                 </DialogTitle>
                 <DialogDescription>
-                  Configure as credenciais do Azure AD para autenticação com Power BI Embedded
+                  Configure as credenciais do Azure AD para autenticação com Power BI Embedded.
+                  Suas credenciais são armazenadas de forma segura e criptografada no servidor.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Importante</AlertTitle>
+                  <Shield className="h-4 w-4" />
+                  <AlertTitle>Armazenamento Seguro</AlertTitle>
                   <AlertDescription>
-                    Para relatórios privados, você precisa de um App Registration no Azure AD com permissões do Power BI.
+                    Suas credenciais são criptografadas e armazenadas de forma segura no servidor. 
+                    O Client Secret nunca é exposto no navegador.
                   </AlertDescription>
                 </Alert>
+
+                {isAzureConfigured && azureConfigDisplay && (
+                  <Alert className="border-green-500/50 bg-green-500/10">
+                    <Check className="h-4 w-4 text-green-500" />
+                    <AlertTitle className="text-green-600">Configuração Ativa</AlertTitle>
+                    <AlertDescription className="text-sm">
+                      <div><strong>Tenant ID:</strong> {azureConfigDisplay.tenantId}</div>
+                      <div><strong>Client ID:</strong> {azureConfigDisplay.clientId}</div>
+                      {azureConfigDisplay.updatedAt && (
+                        <div className="text-xs mt-1 text-muted-foreground">
+                          Atualizado em: {new Date(azureConfigDisplay.updatedAt).toLocaleString('pt-BR')}
+                        </div>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+                )}
                 
                 <div className="space-y-2">
                   <Label htmlFor="tenantId">Tenant ID (Directory ID)</Label>
                   <Input
                     id="tenantId"
                     placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                    value={azureConfig.tenantId}
-                    onChange={(e) => setAzureConfig({ ...azureConfig, tenantId: e.target.value })}
+                    value={azureConfigInput.tenantId}
+                    onChange={(e) => setAzureConfigInput({ ...azureConfigInput, tenantId: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -283,32 +442,53 @@ const PowerBI = () => {
                   <Input
                     id="clientId"
                     placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                    value={azureConfig.clientId}
-                    onChange={(e) => setAzureConfig({ ...azureConfig, clientId: e.target.value })}
+                    value={azureConfigInput.clientId}
+                    onChange={(e) => setAzureConfigInput({ ...azureConfigInput, clientId: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="clientSecret">Client Secret</Label>
+                  <Label htmlFor="clientSecret">
+                    Client Secret {isAzureConfigured && <span className="text-muted-foreground">(deixe em branco para manter o atual)</span>}
+                  </Label>
                   <Input
                     id="clientSecret"
                     type="password"
-                    placeholder="Seu client secret"
-                    value={azureConfig.clientSecret}
-                    onChange={(e) => setAzureConfig({ ...azureConfig, clientSecret: e.target.value })}
+                    placeholder={isAzureConfigured ? "••••••••••••" : "Seu client secret"}
+                    value={azureConfigInput.clientSecret}
+                    onChange={(e) => setAzureConfigInput({ ...azureConfigInput, clientSecret: e.target.value })}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    O client secret é armazenado localmente. Em produção, use um backend seguro.
-                  </p>
                 </div>
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsConfigDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleSaveAzureConfig}>
-                  <Shield className="w-4 h-4 mr-2" />
-                  Salvar Configuração
-                </Button>
+              <DialogFooter className="flex justify-between sm:justify-between">
+                <div>
+                  {isAzureConfigured && (
+                    <Button 
+                      variant="destructive" 
+                      onClick={handleDeleteAzureConfig}
+                      disabled={isDeletingConfig}
+                    >
+                      {isDeletingConfig ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 mr-2" />
+                      )}
+                      Remover
+                    </Button>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setIsConfigDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleSaveAzureConfig} disabled={isSavingConfig}>
+                    {isSavingConfig ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Shield className="w-4 h-4 mr-2" />
+                    )}
+                    {isAzureConfigured ? 'Atualizar' : 'Salvar'} Configuração
+                  </Button>
+                </div>
               </DialogFooter>
             </DialogContent>
           </Dialog>

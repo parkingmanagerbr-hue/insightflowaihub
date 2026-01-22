@@ -8,6 +8,115 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Enhanced SQL validation with comprehensive blocking
+function validateSqlQuery(sql: string): { valid: boolean; error?: string } {
+  const sqlTrimmed = sql.trim();
+  const sqlUpper = sqlTrimmed.toUpperCase();
+  
+  // Must start with SELECT or WITH (for CTEs)
+  if (!sqlUpper.startsWith('SELECT') && !sqlUpper.startsWith('WITH')) {
+    return { valid: false, error: 'Only SELECT queries are allowed for safety' };
+  }
+  
+  // Remove all string literals and comments for keyword checking
+  // Replace single-quoted strings with placeholder
+  let sanitized = sql.replace(/'(?:[^'\\]|\\.)*'/g, "'_STRING_'");
+  // Replace double-quoted identifiers
+  sanitized = sanitized.replace(/"(?:[^"\\]|\\.)*"/g, '"_IDENTIFIER_"');
+  // Remove single-line comments
+  sanitized = sanitized.replace(/--[^\n\r]*/g, '');
+  // Remove multi-line comments
+  sanitized = sanitized.replace(/\/\*[\s\S]*?\*\//g, '');
+  
+  const sanitizedUpper = sanitized.toUpperCase();
+  
+  // Comprehensive list of dangerous keywords/operations
+  const dangerousKeywords = [
+    // DML operations
+    'INSERT', 'UPDATE', 'DELETE', 'MERGE', 'UPSERT',
+    // DDL operations
+    'DROP', 'TRUNCATE', 'ALTER', 'CREATE', 'RENAME',
+    // DCL operations
+    'GRANT', 'REVOKE',
+    // Transaction control that could be abused
+    'COMMIT', 'ROLLBACK', 'SAVEPOINT',
+    // Stored procedure/function execution
+    'EXECUTE', 'EXEC', 'CALL',
+    // PostgreSQL file operations
+    'COPY',
+    // PostgreSQL admin functions (check as function calls)
+    'LO_IMPORT', 'LO_EXPORT', 'LO_UNLINK',
+    // Vacuum/Analyze (admin operations)
+    'VACUUM', 'ANALYZE', 'REINDEX', 'CLUSTER',
+    // Lock operations
+    'LOCK',
+    // SET operations that could change behavior
+    'SET ROLE', 'SET SESSION', 'RESET',
+    // Explain could leak info about structure
+    'EXPLAIN'
+  ];
+  
+  for (const keyword of dangerousKeywords) {
+    // Word boundary check
+    const pattern = new RegExp(`\\b${keyword.replace(' ', '\\s+')}\\b`, 'i');
+    if (pattern.test(sanitizedUpper)) {
+      return { valid: false, error: `Operation '${keyword}' is not allowed in queries` };
+    }
+  }
+  
+  // Block dangerous PostgreSQL functions
+  const dangerousFunctions = [
+    'pg_read_file', 'pg_read_binary_file', 'pg_write_file',
+    'pg_ls_dir', 'pg_ls_logdir', 'pg_ls_waldir', 'pg_ls_archive_statusdir', 'pg_ls_tmpdir',
+    'pg_stat_file', 'pg_file_write', 'pg_file_rename', 'pg_file_unlink',
+    'pg_terminate_backend', 'pg_cancel_backend', 'pg_reload_conf',
+    'pg_rotate_logfile', 'pg_switch_wal', 'pg_create_restore_point',
+    'lo_import', 'lo_export', 'lo_unlink', 'lo_create', 'lo_open', 'lo_close',
+    'pg_advisory_lock', 'pg_advisory_unlock',
+    'dblink', 'dblink_connect', 'dblink_exec',
+    'pg_sleep' // Can be used for timing attacks
+  ];
+  
+  for (const func of dangerousFunctions) {
+    // Check for function call pattern: function_name(
+    const pattern = new RegExp(`\\b${func}\\s*\\(`, 'i');
+    if (pattern.test(sanitizedUpper)) {
+      return { valid: false, error: `Function '${func}' is not allowed in queries` };
+    }
+  }
+  
+  // Block semicolons (prevents multiple statements)
+  if (sanitized.includes(';')) {
+    // Check if semicolon is at the very end (allowed) or in the middle (blocked)
+    const trimmedSanitized = sanitized.trim();
+    if (trimmedSanitized.indexOf(';') < trimmedSanitized.length - 1) {
+      return { valid: false, error: 'Multiple SQL statements are not allowed' };
+    }
+  }
+  
+  // Query length limit (prevent extremely complex queries)
+  if (sql.length > 50000) {
+    return { valid: false, error: 'Query exceeds maximum length of 50000 characters' };
+  }
+  
+  // Limit nesting depth (count parentheses)
+  let maxDepth = 0;
+  let currentDepth = 0;
+  for (const char of sanitized) {
+    if (char === '(') {
+      currentDepth++;
+      maxDepth = Math.max(maxDepth, currentDepth);
+    } else if (char === ')') {
+      currentDepth--;
+    }
+  }
+  if (maxDepth > 10) {
+    return { valid: false, error: 'Query has too many nested levels (max 10)' };
+  }
+  
+  return { valid: true };
+}
+
 // Decrypt function - must match encrypt-connection
 async function deriveKey(userId: string, salt: ArrayBuffer): Promise<CryptoKey> {
   const encoder = new TextEncoder();
@@ -204,26 +313,13 @@ serve(async (req) => {
       );
     }
 
-    // Basic SQL injection prevention - only allow SELECT queries
-    const sqlTrimmed = sql.trim().toUpperCase();
-    if (!sqlTrimmed.startsWith('SELECT') && !sqlTrimmed.startsWith('WITH')) {
+    // Enhanced SQL validation
+    const validationResult = validateSqlQuery(sql);
+    if (!validationResult.valid) {
       return new Response(
-        JSON.stringify({ error: 'Only SELECT queries are allowed for safety' }),
+        JSON.stringify({ error: validationResult.error }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
-    }
-
-    // Check for dangerous keywords
-    const dangerousKeywords = ['INSERT', 'UPDATE', 'DELETE', 'DROP', 'TRUNCATE', 'ALTER', 'CREATE', 'GRANT', 'REVOKE'];
-    for (const keyword of dangerousKeywords) {
-      // Check if keyword appears outside of quotes/strings
-      const pattern = new RegExp(`\\b${keyword}\\b(?=(?:[^']*'[^']*')*[^']*$)`, 'i');
-      if (pattern.test(sql)) {
-        return new Response(
-          JSON.stringify({ error: `Keyword ${keyword} is not allowed in queries` }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
     }
 
     // Fetch connection details
