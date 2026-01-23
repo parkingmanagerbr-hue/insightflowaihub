@@ -60,6 +60,22 @@ serve(async (req) => {
       
       const { data: { user } } = await supabase.auth.getUser();
       userId = user?.id || null;
+      
+      // Verify user is active (approved)
+      if (userId) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('status')
+          .eq('user_id', userId)
+          .single();
+        
+        if (!profile || profile.status !== 'active') {
+          return new Response(
+            JSON.stringify({ error: "Account not active. Please wait for admin approval." }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
     }
 
     const userMessage = context 

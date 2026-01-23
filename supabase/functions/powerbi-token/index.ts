@@ -86,6 +86,20 @@ serve(async (req) => {
       );
     }
 
+    // Verify user is active (approved)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('status')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (!profile || profile.status !== 'active') {
+      return new Response(
+        JSON.stringify({ error: "Account not active. Please wait for admin approval." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Fetch Azure config from database (secure server-side storage)
     const { data: azureConfig, error: configError } = await supabase
       .from('user_azure_configs')

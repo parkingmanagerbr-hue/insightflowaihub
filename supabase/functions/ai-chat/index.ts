@@ -75,6 +75,20 @@ serve(async (req) => {
       );
     }
 
+    // Verify user is active (approved)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('status')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (!profile || profile.status !== 'active') {
+      return new Response(
+        JSON.stringify({ error: "Account not active. Please wait for admin approval." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { messages, context }: ChatRequest = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
