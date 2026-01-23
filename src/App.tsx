@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -31,8 +32,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/admin/approve/:id" element={<UserApprove action="approve" />} />
-            <Route path="/admin/reject/:id" element={<UserApprove action="reject" />} />
+            <Route path="/admin/approve/:id" element={<ProtectedRoute requireAdmin><UserApprove action="approve" /></ProtectedRoute>} />
+            <Route path="/admin/reject/:id" element={<ProtectedRoute requireAdmin><UserApprove action="reject" /></ProtectedRoute>} />
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
               <Route path="chat" element={<AIChat />} />
@@ -41,7 +42,7 @@ const App = () => (
               <Route path="history" element={<History />} />
               <Route path="executions" element={<Executions />} />
               <Route path="settings" element={<Settings />} />
-              <Route path="admin" element={<Admin />} />
+              <Route path="admin" element={<ProtectedRoute requireAdmin><Admin /></ProtectedRoute>} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
