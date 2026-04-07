@@ -13,7 +13,7 @@ interface EmailRequest {
   userId: string;
 }
 
-const ADMIN_EMAIL = "mrovariz@hotmail.com";
+const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "mrovariz@hotmail.com";
 const APP_NAME = "InsightFlow AI Hub";
 const SENDER_EMAIL = "InsightFlowAIHub@outlook.com";
 const SENDER_NAME = "InsightFlow AI Hub";
