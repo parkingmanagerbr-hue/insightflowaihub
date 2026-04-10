@@ -19,6 +19,7 @@ import Executions from "./pages/dashboard/Executions";
 import Settings from "./pages/dashboard/Settings";
 import Admin from "./pages/dashboard/Admin";
 import UserApprove from "./pages/admin/UserApprove";
+import Plans from "./pages/Plans";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/plans" element={<Plans />} />
             <Route path="/admin/approve/:id" element={<ProtectedRoute requireAdmin><UserApprove action="approve" /></ProtectedRoute>} />
             <Route path="/admin/reject/:id" element={<ProtectedRoute requireAdmin><UserApprove action="reject" /></ProtectedRoute>} />
             <Route path="/dashboard" element={<DashboardLayout />}>
