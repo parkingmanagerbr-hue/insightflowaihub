@@ -19,6 +19,7 @@ import Executions from "./pages/dashboard/Executions";
 import Settings from "./pages/dashboard/Settings";
 import Admin from "./pages/dashboard/Admin";
 import UserApprove from "./pages/admin/UserApprove";
+import Plans from "./pages/Plans";
 
 const queryClient = new QueryClient();
 
