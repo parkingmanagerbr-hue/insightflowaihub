@@ -63,6 +63,13 @@ const Header = () => {
           <div className="flex items-center gap-3">
             <Button 
               asChild
+              variant="ghost"
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
+              <a href="/plans">Planos</a>
+            </Button>
+            <Button 
+              asChild
               className="bg-[hsl(210,100%,56%)] hover:bg-[hsl(210,100%,65%)] text-white"
             >
               <a href="/auth">Entrar</a>
