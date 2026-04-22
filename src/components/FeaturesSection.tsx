@@ -14,7 +14,7 @@ const features = [
   {
     icon: Sparkles,
     title: "SQL Automático com IA",
-    description: "Descreva em linguagem natural, Gemini AI gera o SQL otimizado."
+    description: "Descreva em linguagem natural, Ollama gera o SQL otimizado localmente."
   },
   {
     icon: Play,

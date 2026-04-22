@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  MessageSquare, 
-  Send, 
-  Bot, 
-  User, 
+import {
+  MessageSquare,
+  Send,
+  Bot,
+  User,
   Loader2,
   Trash2,
   Copy,
@@ -19,7 +19,8 @@ import {
   Table,
   ChevronDown,
   ChevronUp,
-  AlertCircle
+  AlertCircle,
+  StopCircle,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useOllama } from '@/hooks/useOllama';
+import { streamChat, type OllamaChatMessage } from '@/services/ollamaService';
 import { supabase } from '@/integrations/supabase/client';
+import OllamaStatus from '@/components/OllamaStatus';
 
 interface Message {
   id: string;
@@ -55,28 +59,31 @@ interface QueryResult {
   connectionName?: string;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+const SYSTEM_PROMPT = `Você é um assistente especialista em dados, SQL, Business Intelligence e Power BI.
+Quando o usuário pedir SQL, gere queries seguras (somente SELECT/WITH) dentro de blocos de código \`\`\`sql.
+Responda sempre em português brasileiro.
+Seja objetivo, preciso e forneça explicações claras.`;
 
 const suggestedQuestions = [
   {
     icon: Database,
     title: "Gerar SQL",
-    question: "Gere uma query SQL para listar os 10 produtos mais vendidos do último mês com total de vendas"
+    question: "Gere uma query SQL para listar os 10 produtos mais vendidos do último mês com total de vendas",
   },
   {
     icon: BarChart3,
     title: "Análise de Dados",
-    question: "Quais são as melhores práticas para criar um dashboard de vendas no Power BI?"
+    question: "Quais são as melhores práticas para criar um dashboard de vendas no Power BI?",
   },
   {
     icon: Code,
     title: "DAX Formula",
-    question: "Como criar uma medida DAX para calcular a variação percentual de vendas mês a mês?"
+    question: "Como criar uma medida DAX para calcular a variação percentual de vendas mês a mês?",
   },
   {
     icon: Sparkles,
     title: "Insights",
-    question: "Que tipos de análises posso fazer com dados de e-commerce para melhorar conversões?"
+    question: "Que tipos de análises posso fazer com dados de e-commerce para melhorar conversões?",
   },
 ];
 
@@ -90,10 +97,12 @@ const AIChat = () => {
   const [executingMessageId, setExecutingMessageId] = useState<string | null>(null);
   const [queryResults, setQueryResults] = useState<Record<string, QueryResult>>({});
   const [expandedResults, setExpandedResults] = useState<Record<string, boolean>>({});
+  const abortControllerRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
   const { session } = useAuth();
+  const { selectedModel, models, status: ollamaStatus } = useOllama();
 
   const fetchConnections = useCallback(async () => {
     try {
@@ -104,12 +113,9 @@ const AIChat = () => {
 
       if (error) throw error;
       setConnections(data || []);
-      
-      // Auto-select first connected connection
-      const connected = (data || []).find(c => c.status === 'connected');
-      if (connected) {
-        setSelectedConnection(connected.id);
-      }
+
+      const connected = (data || []).find((c) => c.status === 'connected');
+      if (connected) setSelectedConnection(connected.id);
     } catch (error) {
       console.error('Error fetching connections:', error);
     }
@@ -135,29 +141,22 @@ const AIChat = () => {
     setMessages([]);
     setQueryResults({});
     setExpandedResults({});
-    toast({
-      title: 'Chat limpo',
-      description: 'Todas as mensagens foram removidas',
-    });
+    toast({ title: 'Chat limpo', description: 'Todas as mensagens foram removidas' });
+  };
+
+  const handleStop = () => {
+    abortControllerRef.current?.abort();
   };
 
   const extractSQLFromContent = (content: string): string | null => {
-    // Try to extract SQL from code blocks
     const sqlBlockMatch = content.match(/```sql\n([\s\S]*?)```/i);
-    if (sqlBlockMatch) {
-      return sqlBlockMatch[1].trim();
-    }
-    
-    // Try any code block
+    if (sqlBlockMatch) return sqlBlockMatch[1].trim();
+
     const codeBlockMatch = content.match(/```\n?([\s\S]*?)```/);
     if (codeBlockMatch) {
       const code = codeBlockMatch[1].trim();
-      // Check if it looks like SQL
-      if (/^(SELECT|WITH|INSERT|UPDATE|DELETE)/i.test(code)) {
-        return code;
-      }
+      if (/^(SELECT|WITH|INSERT|UPDATE|DELETE)/i.test(code)) return code;
     }
-    
     return null;
   };
 
@@ -172,7 +171,7 @@ const AIChat = () => {
     }
 
     setExecutingMessageId(messageId);
-    setExpandedResults(prev => ({ ...prev, [messageId]: true }));
+    setExpandedResults((prev) => ({ ...prev, [messageId]: true }));
 
     try {
       const response = await fetch(
@@ -181,29 +180,23 @@ const AIChat = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
+            Authorization: `Bearer ${session?.access_token}`,
           },
-          body: JSON.stringify({
-            connectionId: selectedConnection,
-            sql: sql,
-          }),
-        }
+          body: JSON.stringify({ connectionId: selectedConnection, sql }),
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok) {
-        setQueryResults(prev => ({
+        setQueryResults((prev) => ({
           ...prev,
-          [messageId]: {
-            success: false,
-            error: result.error || 'Erro ao executar query',
-          }
+          [messageId]: { success: false, error: result.error || 'Erro ao executar query' },
         }));
         return;
       }
 
-      setQueryResults(prev => ({
+      setQueryResults((prev) => ({
         ...prev,
         [messageId]: {
           success: true,
@@ -212,7 +205,7 @@ const AIChat = () => {
           rowCount: result.rowCount,
           executionTimeMs: result.executionTimeMs,
           connectionName: result.connectionName,
-        }
+        },
       }));
 
       toast({
@@ -220,13 +213,12 @@ const AIChat = () => {
         description: `${result.rowCount} registro(s) retornado(s) em ${result.executionTimeMs}ms`,
       });
     } catch (error) {
-      console.error('Error executing query:', error);
-      setQueryResults(prev => ({
+      setQueryResults((prev) => ({
         ...prev,
         [messageId]: {
           success: false,
           error: error instanceof Error ? error.message : 'Erro desconhecido',
-        }
+        },
       }));
     } finally {
       setExecutingMessageId(null);
@@ -237,6 +229,15 @@ const AIChat = () => {
     const text = messageText || input.trim();
     if (!text || isLoading) return;
 
+    if (!ollamaStatus.connected) {
+      toast({
+        title: 'Ollama offline',
+        description: 'Inicie o Ollama com "ollama serve" e tente novamente.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -244,100 +245,58 @@ const AIChat = () => {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
-    let assistantContent = '';
     const assistantId = crypto.randomUUID();
+    let assistantContent = '';
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    // Build message history for Ollama
+    const history: OllamaChatMessage[] = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...messages.map((m) => ({ role: m.role, content: m.content })),
+      { role: 'user', content: text },
+    ];
+
+    // Add placeholder assistant message
+    setMessages((prev) => [
+      ...prev,
+      { id: assistantId, role: 'assistant', content: '', timestamp: new Date() },
+    ]);
 
     try {
-      const response = await fetch(CHAT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to get response');
+      for await (const chunk of streamChat(history, selectedModel, abortController.signal)) {
+        assistantContent += chunk;
+        const extractedSQL = extractSQLFromContent(assistantContent);
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId
+              ? { ...m, content: assistantContent, sql: extractedSQL || undefined }
+              : m,
+          ),
+        );
       }
-
-      if (!response.body) {
-        throw new Error('No response body');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let textBuffer = '';
-
-      // Add initial assistant message
-      setMessages(prev => [...prev, {
-        id: assistantId,
-        role: 'assistant',
-        content: '',
-        timestamp: new Date(),
-      }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        textBuffer += decoder.decode(value, { stream: true });
-
-        let newlineIndex: number;
-        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
-          let line = textBuffer.slice(0, newlineIndex);
-          textBuffer = textBuffer.slice(newlineIndex + 1);
-
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (line.startsWith(':') || line.trim() === '') continue;
-          if (!line.startsWith('data: ')) continue;
-
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              assistantContent += content;
-              const extractedSQL = extractSQLFromContent(assistantContent);
-              setMessages(prev => 
-                prev.map(m => 
-                  m.id === assistantId 
-                    ? { ...m, content: assistantContent, sql: extractedSQL || undefined } 
-                    : m
-                )
-              );
-            }
-          } catch {
-            textBuffer = line + '\n' + textBuffer;
-            break;
-          }
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        // User stopped — keep partial content
+      } else {
+        toast({
+          title: 'Erro',
+          description:
+            error instanceof Error ? error.message : 'Falha ao obter resposta do Ollama',
+          variant: 'destructive',
+        });
+        if (!assistantContent) {
+          setMessages((prev) => prev.filter((m) => m.id !== assistantId));
         }
       }
-
-    } catch (error) {
-      console.error('Chat error:', error);
-      toast({
-        title: 'Erro',
-        description: error instanceof Error ? error.message : 'Falha ao obter resposta',
-        variant: 'destructive',
-      });
-      
-      // Remove empty assistant message on error
-      setMessages(prev => prev.filter(m => m.id !== assistantId));
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -348,18 +307,18 @@ const AIChat = () => {
     }
   };
 
-  const formatContent = (content: string, messageId: string, sql?: string) => {
-    // Simple markdown-like formatting for code blocks
+  const formatContent = (content: string, messageId: string) => {
     const parts = content.split(/(```[\s\S]*?```)/g);
-    
+
     return parts.map((part, index) => {
       if (part.startsWith('```') && part.endsWith('```')) {
         const codeContent = part.slice(3, -3);
         const firstNewline = codeContent.indexOf('\n');
         const language = firstNewline > 0 ? codeContent.slice(0, firstNewline).trim() : '';
         const code = firstNewline > 0 ? codeContent.slice(firstNewline + 1) : codeContent;
-        const isSQL = language.toLowerCase() === 'sql' || /^(SELECT|WITH)/i.test(code.trim());
-        
+        const isSQL =
+          language.toLowerCase() === 'sql' || /^(SELECT|WITH)/i.test(code.trim());
+
         return (
           <div key={index} className="my-3 rounded-lg overflow-hidden bg-muted/50 border">
             <div className="flex items-center justify-between px-3 py-1 bg-muted border-b">
@@ -401,8 +360,7 @@ const AIChat = () => {
           </div>
         );
       }
-      
-      // Handle inline code
+
       return (
         <span key={index}>
           {part.split(/(`[^`]+`)/g).map((segment, i) => {
@@ -421,24 +379,18 @@ const AIChat = () => {
   };
 
   const getConnectionIcon = (type: string) => {
-    switch (type) {
-      case 'postgresql':
-        return '🐘';
-      case 'mysql':
-        return '🐬';
-      case 'sqlserver':
-        return '📊';
-      case 'oracle':
-        return '🔶';
-      default:
-        return '🗄️';
-    }
+    const icons: Record<string, string> = {
+      postgresql: '🐘',
+      mysql: '🐬',
+      sqlserver: '📊',
+      oracle: '🔶',
+    };
+    return icons[type] || '🗄️';
   };
 
   const renderQueryResult = (messageId: string) => {
     const result = queryResults[messageId];
     const isExpanded = expandedResults[messageId];
-
     if (!result) return null;
 
     return (
@@ -459,7 +411,9 @@ const AIChat = () => {
                 variant="ghost"
                 size="sm"
                 className="h-6"
-                onClick={() => setExpandedResults(prev => ({ ...prev, [messageId]: false }))}
+                onClick={() =>
+                  setExpandedResults((prev) => ({ ...prev, [messageId]: false }))
+                }
               >
                 <ChevronUp className="w-3 h-3" />
               </Button>
@@ -491,11 +445,15 @@ const AIChat = () => {
                           {result.data.slice(0, 20).map((row, i) => (
                             <tr key={i} className="border-t">
                               {result.columns?.map((col, j) => (
-                                <td key={j} className="px-3 py-2 whitespace-nowrap max-w-[200px] truncate">
-                                  {row[col] !== null && row[col] !== undefined 
-                                    ? String(row[col])
-                                    : <span className="text-muted-foreground italic">null</span>
-                                  }
+                                <td
+                                  key={j}
+                                  className="px-3 py-2 whitespace-nowrap max-w-[200px] truncate"
+                                >
+                                  {row[col] !== null && row[col] !== undefined ? (
+                                    String(row[col])
+                                  ) : (
+                                    <span className="text-muted-foreground italic">null</span>
+                                  )}
                                 </td>
                               ))}
                             </tr>
@@ -510,7 +468,7 @@ const AIChat = () => {
                     )}
                   </ScrollArea>
                 )}
-                {result.data && result.data.length === 0 && (
+                {result.data?.length === 0 && (
                   <div className="flex items-center justify-center py-4 text-sm text-muted-foreground">
                     <AlertCircle className="w-4 h-4 mr-2" />
                     Nenhum registro retornado
@@ -542,13 +500,33 @@ const AIChat = () => {
             InsightFlow AI Chat
           </h2>
           <p className="text-muted-foreground mt-1">
-            Converse com a IA sobre dados, SQL, Power BI e análises
+            Chat analítico com Ollama local — privado e sem custo por token
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Ollama status badge */}
+          <OllamaStatus showModel />
+
+          {/* Model selector */}
+          {models.length > 0 && (
+            <Select value={selectedModel} onValueChange={(v) => localStorage.setItem('ollama_model', v)}>
+              <SelectTrigger className="w-[160px] h-8 text-xs">
+                <SelectValue placeholder="Modelo..." />
+              </SelectTrigger>
+              <SelectContent>
+                {models.map((m) => (
+                  <SelectItem key={m.name} value={m.name} className="text-xs">
+                    {m.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {/* DB connection */}
           <Select value={selectedConnection} onValueChange={setSelectedConnection}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[180px] h-8 text-xs">
               <SelectValue placeholder="Selecione conexão..." />
             </SelectTrigger>
             <SelectContent>
@@ -557,8 +535,8 @@ const AIChat = () => {
                   Nenhuma conexão
                 </SelectItem>
               ) : (
-                connections.map(conn => (
-                  <SelectItem key={conn.id} value={conn.id}>
+                connections.map((conn) => (
+                  <SelectItem key={conn.id} value={conn.id} className="text-xs">
                     <div className="flex items-center gap-2">
                       <span>{getConnectionIcon(conn.type)}</span>
                       <span>{conn.name}</span>
@@ -571,10 +549,10 @@ const AIChat = () => {
               )}
             </SelectContent>
           </Select>
-          
+
           {messages.length > 0 && (
-            <Button variant="outline" size="sm" onClick={handleClearChat}>
-              <Trash2 className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={handleClearChat} className="h-8 text-xs">
+              <Trash2 className="w-3 h-3 mr-1" />
               Limpar
             </Button>
           )}
@@ -589,12 +567,16 @@ const AIChat = () => {
                 <Bot className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-lg font-semibold mb-2">Como posso ajudar?</h3>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                Sou seu assistente de IA para análise de dados, geração de SQL, 
-                e orientações sobre Power BI e Business Intelligence.
+              <p className="text-muted-foreground mb-1 max-w-md">
+                Sou seu assistente de IA local (via Ollama) para análise de dados, SQL e Power BI.
               </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
+              {!ollamaStatus.connected && (
+                <p className="text-sm text-destructive mb-4">
+                  Ollama offline — execute <code className="font-mono bg-muted px-1 rounded">ollama serve</code> para continuar.
+                </p>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl mt-4">
                 {suggestedQuestions.map((item, index) => (
                   <motion.button
                     key={index}
@@ -602,7 +584,8 @@ const AIChat = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                     onClick={() => handleSend(item.question)}
-                    className="flex items-start gap-3 p-4 rounded-lg border bg-card hover:bg-muted/50 text-left transition-colors"
+                    className="flex items-start gap-3 p-4 rounded-lg border bg-card hover:bg-muted/50 text-left transition-colors disabled:opacity-50"
+                    disabled={!ollamaStatus.connected}
                   >
                     <div className="p-2 rounded-lg bg-primary/10">
                       <item.icon className="w-4 h-4 text-primary" />
@@ -633,8 +616,12 @@ const AIChat = () => {
                         <Bot className="w-4 h-4 text-primary" />
                       </div>
                     )}
-                    
-                    <div className={`group relative max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+
+                    <div
+                      className={`group relative max-w-[80%] ${
+                        message.role === 'user' ? 'order-first' : ''
+                      }`}
+                    >
                       <div
                         className={`rounded-2xl px-4 py-3 ${
                           message.role === 'user'
@@ -643,33 +630,34 @@ const AIChat = () => {
                         }`}
                       >
                         <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                          {message.role === 'assistant' 
-                            ? formatContent(message.content, message.id, message.sql) 
-                            : message.content
-                          }
+                          {message.role === 'assistant'
+                            ? formatContent(message.content, message.id)
+                            : message.content}
                         </div>
                         {message.content === '' && message.role === 'assistant' && (
                           <Loader2 className="w-4 h-4 animate-spin" />
                         )}
 
-                        {/* Query results toggle */}
-                        {message.role === 'assistant' && queryResults[message.id] && !expandedResults[message.id] && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-full mt-2 h-6 text-xs"
-                            onClick={() => setExpandedResults(prev => ({ ...prev, [message.id]: true }))}
-                          >
-                            <ChevronDown className="w-3 h-3 mr-1" />
-                            Mostrar resultado da query
-                          </Button>
-                        )}
+                        {message.role === 'assistant' &&
+                          queryResults[message.id] &&
+                          !expandedResults[message.id] && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full mt-2 h-6 text-xs"
+                              onClick={() =>
+                                setExpandedResults((prev) => ({ ...prev, [message.id]: true }))
+                              }
+                            >
+                              <ChevronDown className="w-3 h-3 mr-1" />
+                              Mostrar resultado da query
+                            </Button>
+                          )}
 
-                        {/* Query results */}
                         {message.role === 'assistant' && renderQueryResult(message.id)}
                       </div>
-                      
-                      {message.role === 'assistant' && message.content && !message.sql && (
+
+                      {message.role === 'assistant' && message.content && (
                         <Button
                           variant="ghost"
                           size="icon"
@@ -704,25 +692,36 @@ const AIChat = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Digite sua pergunta sobre dados, SQL, Power BI..."
+              placeholder={
+                ollamaStatus.connected
+                  ? 'Digite sua pergunta sobre dados, SQL, Power BI...'
+                  : 'Ollama offline — execute "ollama serve" para usar o chat'
+              }
               className="min-h-[60px] max-h-[200px] resize-none"
-              disabled={isLoading}
+              disabled={isLoading || !ollamaStatus.connected}
             />
-            <Button 
-              onClick={() => handleSend()} 
-              disabled={!input.trim() || isLoading}
-              size="icon"
-              className="h-[60px] w-[60px]"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
+            {isLoading ? (
+              <Button
+                onClick={handleStop}
+                size="icon"
+                variant="destructive"
+                className="h-[60px] w-[60px]"
+              >
+                <StopCircle className="w-5 h-5" />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => handleSend()}
+                disabled={!input.trim() || !ollamaStatus.connected}
+                size="icon"
+                className="h-[60px] w-[60px]"
+              >
                 <Send className="w-5 h-5" />
-              )}
-            </Button>
+              </Button>
+            )}
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            Powered by Gemini AI • Pressione Enter para enviar, Shift+Enter para nova linha
+            Powered by Ollama ({selectedModel}) • Enter para enviar, Shift+Enter para nova linha
           </p>
         </div>
       </Card>

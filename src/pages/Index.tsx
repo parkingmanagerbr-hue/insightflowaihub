@@ -4,7 +4,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import SecuritySection from "@/components/SecuritySection";
 import AuthSection from "@/components/AuthSection";
 import PWASection from "@/components/PWASection";
-import GeminiSection from "@/components/GeminiSection";
+import OllamaSection from "@/components/OllamaSection";
 import PlansSection from "@/components/PlansSection";
 import Footer from "@/components/Footer";
 
@@ -17,7 +17,7 @@ const Index = () => {
       <SecuritySection />
       <AuthSection />
       <PWASection />
-      <GeminiSection />
+      <OllamaSection />
       <PlansSection />
       {/* Video Showcase */}
       <section className="py-24 bg-secondary/30">

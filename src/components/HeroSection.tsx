@@ -50,7 +50,7 @@ const HeroSection = () => {
           >
             <Sparkles className="w-4 h-4 text-[hsl(210,100%,56%)]" />
             <span className="text-sm font-medium text-white/90">
-              Powered by Gemini AI
+              Powered by Ollama — IA 100% Local
             </span>
           </motion.div>
 
@@ -62,7 +62,7 @@ const HeroSection = () => {
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white"
           >
             Relatórios Inteligentes com{" "}
-            <span className="gradient-text">Gemini</span> e{" "}
+            <span className="gradient-text">Ollama</span> e{" "}
             <span className="gradient-text">Power BI</span>
           </motion.h1>
 
@@ -73,8 +73,8 @@ const HeroSection = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto"
           >
-            Conecte seu banco de dados, gere insights com IA e visualize tudo com 
-            Power BI Embedded. Transforme dados em decisões estratégicas.
+            Conecte seu banco de dados, gere SQL com IA local via Ollama e visualize
+            tudo com Power BI Embedded. Privacidade total — seus dados nunca saem da sua máquina.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -127,7 +127,7 @@ const HeroSection = () => {
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
               <Sparkles className="w-4 h-4 text-[hsl(210,100%,56%)]" />
-              <span className="text-sm text-white/80">SQL Automático</span>
+              <span className="text-sm text-white/80">SQL com Ollama Local</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
               <BarChart3 className="w-4 h-4 text-[hsl(210,100%,56%)]" />

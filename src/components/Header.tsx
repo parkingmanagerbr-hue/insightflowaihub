@@ -10,7 +10,7 @@ const navLinks = [
   { href: "#planos", label: "Planos" },
   { href: "#pwa", label: "PWA" },
   { href: "#auth", label: "Auth" },
-  { href: "#gemini", label: "Gemini" },
+  { href: "#ollama", label: "Ollama" },
   { href: "#contato", label: "Contato" },
 ];
 

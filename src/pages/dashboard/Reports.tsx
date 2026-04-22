@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Database, 
-  Sparkles, 
-  Play, 
-  Copy, 
+import {
+  Cpu,
+  Play,
+  Copy,
   Download,
   FileSpreadsheet,
   Table2,
-  BarChart3
+  BarChart3,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,50 +17,101 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useOllama } from '@/hooks/useOllama';
+import { generateSQL } from '@/services/ollamaService';
+import OllamaStatus from '@/components/OllamaStatus';
+
+const TEMPLATES = {
+  sales: [
+    {
+      icon: BarChart3,
+      name: 'Vendas Mensais',
+      desc: 'Análise de vendas por período',
+      prompt: 'Gere um relatório de vendas mensais agrupado por mês, mostrando total de vendas, receita bruta e ticket médio dos últimos 12 meses.',
+    },
+    {
+      icon: Table2,
+      name: 'Top Produtos',
+      desc: 'Produtos mais vendidos',
+      prompt: 'Liste os 20 produtos mais vendidos do último trimestre com quantidade, receita e margem percentual.',
+    },
+    {
+      icon: FileSpreadsheet,
+      name: 'Comissões',
+      desc: 'Relatório de comissões por vendedor',
+      prompt: 'Calcule as comissões de cada vendedor no mês atual com base nas vendas realizadas, mostrando total de vendas, percentual de comissão e valor a pagar.',
+    },
+    {
+      icon: Download,
+      name: 'Funil de Vendas',
+      desc: 'Taxa de conversão por etapa',
+      prompt: 'Mostre o funil de vendas com quantidade de leads, oportunidades, propostas e fechamentos por mês nos últimos 6 meses, incluindo taxa de conversão.',
+    },
+  ],
+  financial: [
+    {
+      icon: BarChart3,
+      name: 'DRE Simplificado',
+      desc: 'Demonstrativo de resultado',
+      prompt: 'Gere um DRE simplificado com receita bruta, deduções, receita líquida, custos, despesas e lucro líquido dos últimos 3 meses.',
+    },
+    {
+      icon: Table2,
+      name: 'Fluxo de Caixa',
+      desc: 'Entradas e saídas por dia',
+      prompt: 'Relatório de fluxo de caixa diário do mês atual mostrando saldo inicial, entradas, saídas e saldo final por dia.',
+    },
+  ],
+  customers: [
+    {
+      icon: BarChart3,
+      name: 'Retenção de Clientes',
+      desc: 'Taxa de churn e retenção',
+      prompt: 'Calcule a taxa de retenção e churn mensal de clientes nos últimos 12 meses, incluindo novos clientes, cancelamentos e base ativa.',
+    },
+    {
+      icon: Table2,
+      name: 'Segmentação RFM',
+      desc: 'Recência, frequência e valor',
+      prompt: 'Segmente clientes por RFM (Recência, Frequência, Valor Monetário) classificando em campeões, fiéis, em risco e perdidos.',
+    },
+  ],
+};
 
 const Reports = () => {
   const [prompt, setPrompt] = useState('');
   const [generatedSQL, setGeneratedSQL] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const { selectedModel, status: ollamaStatus } = useOllama();
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      toast({
-        title: 'Atenção',
-        description: 'Digite uma descrição para gerar o relatório',
-        variant: 'destructive',
-      });
+  const handleGenerate = async (customPrompt?: string) => {
+    const text = customPrompt || prompt.trim();
+    if (!text) {
+      toast({ title: 'Atenção', description: 'Digite uma descrição para gerar o relatório', variant: 'destructive' });
       return;
     }
 
+    if (!ollamaStatus.connected) {
+      toast({ title: 'Ollama offline', description: 'Inicie o Ollama com "ollama serve"', variant: 'destructive' });
+      return;
+    }
+
+    if (customPrompt) setPrompt(customPrompt);
     setIsGenerating(true);
-    
+    setGeneratedSQL('');
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-sql`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ prompt }),
-      });
+      const result = await generateSQL(text, selectedModel);
+      // Extract SQL from code block if present
+      const match = result.match(/```sql\n?([\s\S]*?)```/i) || result.match(/```\n?([\s\S]*?)```/);
+      const sql = match ? match[1].trim() : result.trim();
+      setGeneratedSQL(sql);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Erro ao gerar SQL');
-      }
-
-      const data = await response.json();
-      setGeneratedSQL(data.sql);
-      
-      toast({
-        title: 'SQL Gerado!',
-        description: 'O código SQL foi gerado com Gemini AI',
-      });
+      toast({ title: 'SQL Gerado!', description: `Query gerada pelo Ollama (${selectedModel})` });
     } catch (error) {
-      console.error('Error generating SQL:', error);
       toast({
         title: 'Erro',
         description: error instanceof Error ? error.message : 'Erro ao gerar SQL',
@@ -72,45 +124,46 @@ const Reports = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedSQL);
-    toast({
-      title: 'Copiado!',
-      description: 'SQL copiado para a área de transferência',
-    });
+    toast({ title: 'Copiado!', description: 'SQL copiado para a área de transferência' });
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([generatedSQL], { type: 'text/sql' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'relatorio.sql';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
     <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              Gerador de Relatórios com IA
-            </CardTitle>
-            <CardDescription>
-              Descreva o relatório que você precisa e a IA irá gerar o SQL automaticamente
-            </CardDescription>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Cpu className="w-5 h-5 text-primary" />
+                  Gerador de Relatórios com Ollama
+                </CardTitle>
+                <CardDescription>
+                  Descreva o relatório e o Ollama gera o SQL localmente — sem enviar dados à nuvem
+                </CardDescription>
+              </div>
+              <OllamaStatus showModel />
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Conexão com Banco</Label>
-              <Select defaultValue="default">
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a conexão" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">
-                    <div className="flex items-center gap-2">
-                      <Database className="w-4 h-4" />
-                      Banco Principal
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {!ollamaStatus.connected && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Ollama está offline. Execute <code className="font-mono bg-muted px-1 rounded">ollama serve</code> no terminal e recarregue a página.
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="space-y-2">
               <Label>Descreva o relatório desejado</Label>
@@ -119,18 +172,22 @@ const Reports = () => {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 rows={4}
+                disabled={!ollamaStatus.connected}
               />
             </div>
 
-            <Button onClick={handleGenerate} disabled={isGenerating}>
+            <Button
+              onClick={() => handleGenerate()}
+              disabled={isGenerating || !ollamaStatus.connected}
+            >
               {isGenerating ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
-                  Gerando...
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Gerando com Ollama...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 mr-2" />
+                  <Cpu className="w-4 h-4 mr-2" />
                   Gerar SQL
                 </>
               )}
@@ -140,10 +197,7 @@ const Reports = () => {
       </motion.div>
 
       {generatedSQL && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -153,6 +207,10 @@ const Reports = () => {
                     <Copy className="w-4 h-4 mr-2" />
                     Copiar
                   </Button>
+                  <Button variant="outline" size="sm" onClick={handleDownload}>
+                    <Download className="w-4 h-4 mr-2" />
+                    .sql
+                  </Button>
                   <Button size="sm">
                     <Play className="w-4 h-4 mr-2" />
                     Executar
@@ -161,7 +219,7 @@ const Reports = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm max-h-[400px]">
                 <code>{generatedSQL}</code>
               </pre>
             </CardContent>
@@ -178,7 +236,7 @@ const Reports = () => {
           <CardHeader>
             <CardTitle>Templates de Relatórios</CardTitle>
             <CardDescription>
-              Use templates prontos para acelerar a criação de relatórios
+              Use templates prontos — o Ollama gera o SQL automaticamente
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -189,37 +247,31 @@ const Reports = () => {
                 <TabsTrigger value="customers">Clientes</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="sales" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { icon: BarChart3, name: 'Vendas Mensais', desc: 'Análise de vendas por período' },
-                    { icon: Table2, name: 'Top Produtos', desc: 'Produtos mais vendidos' },
-                    { icon: FileSpreadsheet, name: 'Comissões', desc: 'Relatório de comissões' },
-                    { icon: Download, name: 'Exportação', desc: 'Dados para exportação' },
-                  ].map((template) => (
-                    <button
-                      key={template.name}
-                      className="flex items-center gap-4 p-4 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-colors text-left"
-                    >
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <template.icon className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{template.name}</p>
-                        <p className="text-sm text-muted-foreground">{template.desc}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="financial">
-                <p className="text-muted-foreground">Templates financeiros em breve...</p>
-              </TabsContent>
-
-              <TabsContent value="customers">
-                <p className="text-muted-foreground">Templates de clientes em breve...</p>
-              </TabsContent>
+              {(['sales', 'financial', 'customers'] as const).map((tab) => (
+                <TabsContent key={tab} value={tab} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {TEMPLATES[tab].map((template) => (
+                      <button
+                        key={template.name}
+                        onClick={() => handleGenerate(template.prompt)}
+                        disabled={isGenerating || !ollamaStatus.connected}
+                        className="flex items-center gap-4 p-4 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                          <template.icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{template.name}</p>
+                          <p className="text-sm text-muted-foreground">{template.desc}</p>
+                        </div>
+                        {isGenerating && prompt === template.prompt && (
+                          <Loader2 className="w-4 h-4 animate-spin ml-auto text-primary" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </TabsContent>
+              ))}
             </Tabs>
           </CardContent>
         </Card>

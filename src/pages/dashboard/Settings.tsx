@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  User, 
-  Bell, 
-  Database, 
+import {
+  User,
+  Bell,
+  Database,
   Key,
   Save,
   Eye,
@@ -16,8 +16,155 @@ import {
   RefreshCw,
   Loader2,
   Plug,
-  TestTube
+  TestTube,
+  Cpu,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
+import { useOllama } from '@/hooks/useOllama';
+import { OLLAMA_DEFAULT_URL, OLLAMA_DEFAULT_MODEL } from '@/services/ollamaService';
+
+// ── Ollama Settings Component ──────────────────────────────────────────────
+const OllamaSettingsTab = () => {
+  const { status, models, selectedModel, setSelectedModel, baseUrl, setBaseUrl, isChecking, refresh } = useOllama();
+  const [urlInput, setUrlInput] = useState(baseUrl);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setBaseUrl(urlInput.trim() || OLLAMA_DEFAULT_URL);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+    refresh();
+  };
+
+  const handleReset = () => {
+    setUrlInput(OLLAMA_DEFAULT_URL);
+    setBaseUrl(OLLAMA_DEFAULT_URL);
+    setSelectedModel(OLLAMA_DEFAULT_MODEL);
+    refresh();
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Status card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Cpu className="w-5 h-5 text-primary" />
+            Configuração do Ollama
+          </CardTitle>
+          <CardDescription>
+            Configure a URL e o modelo padrão do Ollama local
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Connection status */}
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
+            <div className="flex items-center gap-3">
+              {status.connected ? (
+                <Wifi className="w-5 h-5 text-green-500" />
+              ) : (
+                <WifiOff className="w-5 h-5 text-destructive" />
+              )}
+              <div>
+                <p className={`font-medium text-sm ${status.connected ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
+                  {status.connected ? 'Ollama conectado' : 'Ollama offline'}
+                </p>
+                {status.connected && status.version && (
+                  <p className="text-xs text-muted-foreground">versão {status.version}</p>
+                )}
+                {!status.connected && status.error && (
+                  <p className="text-xs text-muted-foreground">{status.error}</p>
+                )}
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={refresh} disabled={isChecking}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${isChecking ? 'animate-spin' : ''}`} />
+              Verificar
+            </Button>
+          </div>
+
+          {/* URL */}
+          <div className="space-y-2">
+            <Label htmlFor="ollamaUrl">URL do Ollama</Label>
+            <div className="flex gap-2">
+              <Input
+                id="ollamaUrl"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                placeholder={OLLAMA_DEFAULT_URL}
+              />
+              <Button onClick={handleSave} disabled={saved}>
+                {saved ? <Check className="w-4 h-4 mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+                {saved ? 'Salvo' : 'Salvar'}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Padrão: {OLLAMA_DEFAULT_URL}. Altere se o Ollama estiver em outro host/porta.
+            </p>
+          </div>
+
+          {/* Model selector */}
+          <div className="space-y-2">
+            <Label>Modelo Padrão</Label>
+            {models.length > 0 ? (
+              <Select value={selectedModel} onValueChange={setSelectedModel}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um modelo..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {models.map((m) => (
+                    <SelectItem key={m.name} value={m.name}>
+                      <div className="flex items-center gap-2">
+                        <Cpu className="w-3 h-3 text-muted-foreground" />
+                        <span>{m.name}</span>
+                        <span className="text-xs text-muted-foreground ml-1">
+                          ({(m.size / 1_000_000_000).toFixed(1)}GB)
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="p-3 rounded-lg border border-dashed text-sm text-muted-foreground text-center">
+                {status.connected
+                  ? 'Nenhum modelo instalado. Execute: ollama pull llama3'
+                  : 'Conecte ao Ollama para ver os modelos disponíveis'}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Modelo atual: <code className="font-mono bg-muted px-1 rounded">{selectedModel}</code>
+            </p>
+          </div>
+
+          {/* Quick commands */}
+          <div className="space-y-2">
+            <Label>Comandos Úteis</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {[
+                { label: 'Iniciar Ollama', cmd: 'ollama serve' },
+                { label: 'Baixar Llama 3', cmd: 'ollama pull llama3' },
+                { label: 'Baixar CodeLlama', cmd: 'ollama pull codellama' },
+                { label: 'Baixar Mistral', cmd: 'ollama pull mistral' },
+              ].map(({ label, cmd }) => (
+                <div key={cmd} className="flex items-center justify-between p-2 rounded border bg-muted/30">
+                  <span className="text-xs text-muted-foreground">{label}</span>
+                  <code className="text-xs font-mono bg-background border px-2 py-0.5 rounded">{cmd}</code>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Button variant="outline" size="sm" onClick={handleReset}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Restaurar padrões
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -512,6 +659,10 @@ const Settings = () => {
               <Key className="w-4 h-4" />
               API
             </TabsTrigger>
+            <TabsTrigger value="ollama" className="flex items-center gap-2">
+              <Cpu className="w-4 h-4" />
+              Ollama
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -817,6 +968,11 @@ const Settings = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* ── Ollama Tab ── */}
+          <TabsContent value="ollama">
+            <OllamaSettingsTab />
           </TabsContent>
         </Tabs>
       </motion.div>

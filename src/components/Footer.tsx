@@ -32,8 +32,8 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Logo size="lg" className="mb-6" />
             <p className="text-white/60 mb-6 max-w-sm">
-              Transforme seus dados em insights acionáveis com a potência do 
-              Gemini AI e a visualização do Power BI.
+              Transforme seus dados em insights acionáveis com a potência do
+              Ollama (IA local) e a visualização do Power BI.
             </p>
             
             {/* Contact Info */}
