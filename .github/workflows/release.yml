@@ -1,0 +1,77 @@
+name: Release — Versionamento Semântico
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+      upload_url: ${{ steps.release.outputs.upload_url }}
+
+    steps:
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+
+  notify-release:
+    name: Notificar novo release
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    timeout-minutes: 5
+
+    steps:
+      - name: Send release email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "🚀 InsightFlow ${{ needs.release-please.outputs.tag_name }} lançado!"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: "InsightFlow Releases <${{ secrets.GMAIL_USERNAME }}>"
+          html_body: |
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family:Inter,sans-serif;background:#0f172a;color:#e2e8f0;padding:0;margin:0">
+              <div style="max-width:600px;margin:0 auto;padding:40px 20px">
+                <div style="background:#1e293b;border-radius:12px;padding:32px;border:1px solid #334155">
+                  <div style="text-align:center;margin-bottom:24px">
+                    <h1 style="color:#a78bfa;font-size:24px;margin:0">🚀 Novo Release</h1>
+                    <p style="color:#94a3b8;margin:8px 0 0">InsightFlow AI Hub</p>
+                  </div>
+                  <div style="text-align:center;margin:20px 0">
+                    <span style="background:#4c1d95;color:#c4b5fd;padding:8px 20px;border-radius:20px;font-size:20px;font-weight:bold">
+                      ${{ needs.release-please.outputs.tag_name }}
+                    </span>
+                  </div>
+                  <div style="text-align:center;margin-top:28px;display:flex;gap:12px;justify-content:center">
+                    <a href="https://github.com/${{ github.repository }}/releases/tag/${{ needs.release-please.outputs.tag_name }}" style="background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;margin:0 6px">
+                      Ver Changelog
+                    </a>
+                    <a href="https://insightflowaihub.vercel.app" style="background:#3b82f6;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;margin:0 6px">
+                      Abrir Aplicação
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </body>
+            </html>

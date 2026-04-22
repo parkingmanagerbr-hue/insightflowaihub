@@ -1,0 +1,212 @@
+name: CD — Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'production'
+        type: choice
+        options: [production, preview]
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+
+    outputs:
+      deployment_url: ${{ steps.deploy.outputs.url }}
+      deployment_id: ${{ steps.deploy.outputs.deployment_id }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build (local verification)
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel Production
+        id: deploy
+        run: |
+          OUTPUT=$(vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }} 2>&1)
+          echo "$OUTPUT"
+          URL=$(echo "$OUTPUT" | grep -E "^https://" | tail -1)
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "deployment_id=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Deployment Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.runId,
+              state: 'success',
+              environment_url: url,
+              description: `Deployed to Vercel: ${url}`,
+              log_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+  notify:
+    name: Email Notification
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get commit info
+        id: info
+        run: |
+          echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_OUTPUT
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Send email — Success
+        if: needs.deploy.result == 'success'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "✅ InsightFlow implantado com sucesso — ${{ steps.info.outputs.sha_short }}"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: "InsightFlow CI/CD <${{ secrets.GMAIL_USERNAME }}>"
+          html_body: |
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family:Inter,sans-serif;background:#0f172a;color:#e2e8f0;padding:0;margin:0">
+              <div style="max-width:600px;margin:0 auto;padding:40px 20px">
+                <div style="background:#1e293b;border-radius:12px;padding:32px;border:1px solid #334155">
+                  <div style="text-align:center;margin-bottom:24px">
+                    <h1 style="color:#22c55e;font-size:24px;margin:0">✅ Deploy Bem-Sucedido</h1>
+                    <p style="color:#94a3b8;margin:8px 0 0">InsightFlow AI Hub</p>
+                  </div>
+                  <table style="width:100%;border-collapse:collapse">
+                    <tr style="border-bottom:1px solid #334155">
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Ambiente</td>
+                      <td style="padding:12px 0;text-align:right"><span style="background:#166534;color:#86efac;padding:4px 10px;border-radius:20px;font-size:12px">Production</span></td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #334155">
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Commit</td>
+                      <td style="padding:12px 0;text-align:right;font-family:monospace;font-size:13px;color:#e2e8f0">${{ steps.info.outputs.sha_short }}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #334155">
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Mensagem</td>
+                      <td style="padding:12px 0;text-align:right;font-size:13px;color:#e2e8f0">${{ steps.info.outputs.message }}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #334155">
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Autor</td>
+                      <td style="padding:12px 0;text-align:right;font-size:13px;color:#e2e8f0">${{ steps.info.outputs.author }}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #334155">
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Horário</td>
+                      <td style="padding:12px 0;text-align:right;font-size:13px;color:#e2e8f0">${{ github.event.head_commit.timestamp }}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">URL</td>
+                      <td style="padding:12px 0;text-align:right"><a href="${{ needs.deploy.outputs.deployment_url }}" style="color:#60a5fa;font-size:13px">${{ needs.deploy.outputs.deployment_url }}</a></td>
+                    </tr>
+                  </table>
+                  <div style="text-align:center;margin-top:28px">
+                    <a href="${{ needs.deploy.outputs.deployment_url }}" style="background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">
+                      Abrir Aplicação
+                    </a>
+                  </div>
+                  <div style="text-align:center;margin-top:16px">
+                    <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" style="color:#64748b;font-size:12px;text-decoration:none">Ver logs do pipeline</a>
+                  </div>
+                </div>
+              </div>
+            </body>
+            </html>
+
+      - name: Send email — Failure
+        if: needs.deploy.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "❌ InsightFlow — Falha no deploy — ${{ steps.info.outputs.sha_short }}"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: "InsightFlow CI/CD <${{ secrets.GMAIL_USERNAME }}>"
+          html_body: |
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family:Inter,sans-serif;background:#0f172a;color:#e2e8f0;padding:0;margin:0">
+              <div style="max-width:600px;margin:0 auto;padding:40px 20px">
+                <div style="background:#1e293b;border-radius:12px;padding:32px;border:1px solid #334155">
+                  <div style="text-align:center;margin-bottom:24px">
+                    <h1 style="color:#ef4444;font-size:24px;margin:0">❌ Falha no Deploy</h1>
+                    <p style="color:#94a3b8;margin:8px 0 0">InsightFlow AI Hub</p>
+                  </div>
+                  <table style="width:100%;border-collapse:collapse">
+                    <tr style="border-bottom:1px solid #334155">
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Commit</td>
+                      <td style="padding:12px 0;text-align:right;font-family:monospace;font-size:13px">${{ steps.info.outputs.sha_short }}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #334155">
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Mensagem</td>
+                      <td style="padding:12px 0;text-align:right;font-size:13px">${{ steps.info.outputs.message }}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Autor</td>
+                      <td style="padding:12px 0;text-align:right;font-size:13px">${{ steps.info.outputs.author }}</td>
+                    </tr>
+                  </table>
+                  <div style="text-align:center;margin-top:28px">
+                    <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" style="background:#dc2626;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">
+                      Ver Logs de Erro
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </body>
+            </html>

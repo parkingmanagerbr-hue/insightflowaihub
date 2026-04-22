@@ -1,0 +1,18 @@
+{
+  "release-type": "node",
+  "packages": {
+    ".": {
+      "changelog-sections": [
+        { "type": "feat",     "section": "🚀 Funcionalidades" },
+        { "type": "fix",      "section": "🐛 Correções" },
+        { "type": "perf",     "section": "⚡ Performance" },
+        { "type": "refactor", "section": "♻️ Refactoring" },
+        { "type": "docs",     "section": "📚 Documentação" },
+        { "type": "chore",    "section": "🔧 Manutenção",    "hidden": true },
+        { "type": "test",     "section": "🧪 Testes",        "hidden": true }
+      ],
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true
+    }
+  }
+}
