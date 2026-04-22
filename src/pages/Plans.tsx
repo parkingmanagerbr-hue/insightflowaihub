@@ -13,8 +13,8 @@ const plans = [
   {
     id: 'monthly',
     name: 'Mensal',
-    price: 'R$ 49,90',
-    priceValue: 49.90,
+    price: 'R$ 99,00',
+    priceValue: 99.00,
     period: '/mês',
     description: 'Ideal para começar a explorar o poder da IA em seus dados',
     icon: Zap,
@@ -32,10 +32,10 @@ const plans = [
   {
     id: 'annual',
     name: 'Anual',
-    price: 'R$ 149,00',
-    priceValue: 149.00,
+    price: 'R$ 990,00',
+    priceValue: 990.00,
     period: '/ano',
-    description: 'Melhor custo-benefício — economize mais de 75%',
+    description: 'Melhor custo-benefício — 2 meses grátis',
     icon: Crown,
     features: [
       'Tudo do plano Mensal',
@@ -46,10 +46,10 @@ const plans = [
       'Integração com Power BI',
       'Chat com IA para análise de dados',
       'Suporte prioritário',
-      'Economize mais de 75%',
+      'Equivalente a 10 meses (2 grátis)',
     ],
     popular: true,
-    savings: 'Economize R$ 449,80',
+    savings: 'Economize R$ 198,00',
   },
 ];
 
