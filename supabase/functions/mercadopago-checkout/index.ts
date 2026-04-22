@@ -52,12 +52,12 @@ serve(async (req) => {
     const planDetails = {
       monthly: {
         title: 'InsightFlow Pro - Mensal',
-        price: 49.90,
+        price: 99.00,
         description: 'Assinatura mensal do InsightFlow Pro',
       },
       annual: {
         title: 'InsightFlow Pro - Anual',
-        price: 149.00,
+        price: 990.00,
         description: 'Assinatura anual do InsightFlow Pro',
       },
     };
