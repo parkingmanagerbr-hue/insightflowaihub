@@ -7,6 +7,7 @@ import MobileMenu from "./MobileMenu";
 const navLinks = [
   { href: "#funcionalidades", label: "Funcionalidades" },
   { href: "#seguranca", label: "Segurança" },
+  { href: "#planos", label: "Planos" },
   { href: "#pwa", label: "PWA" },
   { href: "#auth", label: "Auth" },
   { href: "#gemini", label: "Gemini" },
