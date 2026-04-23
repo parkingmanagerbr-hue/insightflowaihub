@@ -1,4 +1,4 @@
-name: CD — Deploy to Netlify
+name: CD - Deploy to Netlify
 
 on:
   push:
@@ -55,7 +55,7 @@ jobs:
         id: deploy
         uses: netlify/actions/cli@master
         with:
-          args: deploy --dir=dist --prod --message "Deploy ${{ github.sha }} — ${{ github.event.head_commit.message }}"
+          args: deploy --dir=dist --prod --message "Deploy ${{ github.sha }} - ${{ github.event.head_commit.message }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -82,16 +82,17 @@ jobs:
           echo "message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_OUTPUT
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Send email — Success
-        if: needs.deploy.result == 'success' && secrets.GMAIL_USERNAME != ''
+      - name: Send email - Success
+        if: needs.deploy.result == 'success'
         uses: dawidd6/action-send-mail@v3
+        continue-on-error: true
         with:
           server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.GMAIL_USERNAME }}
           password: ${{ secrets.GMAIL_APP_PASSWORD }}
-          subject: "✅ InsightFlow implantado na Netlify — ${{ steps.info.outputs.sha_short }}"
+          subject: "InsightFlow implantado na Netlify - ${{ steps.info.outputs.sha_short }}"
           to: ${{ secrets.NOTIFY_EMAIL }}
           from: "InsightFlow CI/CD <${{ secrets.GMAIL_USERNAME }}>"
           html_body: |
@@ -101,17 +102,13 @@ jobs:
               <div style="max-width:600px;margin:0 auto;padding:40px 20px">
                 <div style="background:#1e293b;border-radius:12px;padding:32px;border:1px solid #334155">
                   <div style="text-align:center;margin-bottom:24px">
-                    <h1 style="color:#22c55e;font-size:24px;margin:0">✅ Deploy Bem-Sucedido</h1>
-                    <p style="color:#94a3b8;margin:8px 0 0">InsightFlow AI Hub • Netlify</p>
+                    <h1 style="color:#22c55e;font-size:24px;margin:0">Deploy Bem-Sucedido</h1>
+                    <p style="color:#94a3b8;margin:8px 0 0">InsightFlow AI Hub - Netlify</p>
                   </div>
                   <table style="width:100%;border-collapse:collapse">
                     <tr style="border-bottom:1px solid #334155">
                       <td style="padding:12px 0;color:#94a3b8;font-size:14px">Plataforma</td>
                       <td style="padding:12px 0;text-align:right"><span style="background:#064e3b;color:#6ee7b7;padding:4px 10px;border-radius:20px;font-size:12px">Netlify</span></td>
-                    </tr>
-                    <tr style="border-bottom:1px solid #334155">
-                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Ambiente</td>
-                      <td style="padding:12px 0;text-align:right"><span style="background:#166534;color:#86efac;padding:4px 10px;border-radius:20px;font-size:12px">Production</span></td>
                     </tr>
                     <tr style="border-bottom:1px solid #334155">
                       <td style="padding:12px 0;color:#94a3b8;font-size:14px">Commit</td>
@@ -121,10 +118,6 @@ jobs:
                       <td style="padding:12px 0;color:#94a3b8;font-size:14px">Mensagem</td>
                       <td style="padding:12px 0;text-align:right;font-size:13px;color:#e2e8f0">${{ steps.info.outputs.message }}</td>
                     </tr>
-                    <tr style="border-bottom:1px solid #334155">
-                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Autor</td>
-                      <td style="padding:12px 0;text-align:right;font-size:13px;color:#e2e8f0">${{ steps.info.outputs.author }}</td>
-                    </tr>
                     <tr>
                       <td style="padding:12px 0;color:#94a3b8;font-size:14px">URL</td>
                       <td style="padding:12px 0;text-align:right"><a href="${{ needs.deploy.outputs.deploy_url }}" style="color:#60a5fa;font-size:13px">${{ needs.deploy.outputs.deploy_url }}</a></td>
@@ -132,27 +125,25 @@ jobs:
                   </table>
                   <div style="text-align:center;margin-top:28px">
                     <a href="${{ needs.deploy.outputs.deploy_url }}" style="background:#059669;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">
-                      Abrir Aplicação
+                      Abrir Aplicacao
                     </a>
-                  </div>
-                  <div style="text-align:center;margin-top:16px">
-                    <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" style="color:#64748b;font-size:12px;text-decoration:none">Ver logs do pipeline</a>
                   </div>
                 </div>
               </div>
             </body>
             </html>
 
-      - name: Send email — Failure
-        if: needs.deploy.result == 'failure' && secrets.GMAIL_USERNAME != ''
+      - name: Send email - Failure
+        if: needs.deploy.result == 'failure'
         uses: dawidd6/action-send-mail@v3
+        continue-on-error: true
         with:
           server_address: smtp.gmail.com
           server_port: 587
           secure: false
           username: ${{ secrets.GMAIL_USERNAME }}
           password: ${{ secrets.GMAIL_APP_PASSWORD }}
-          subject: "❌ InsightFlow — Falha no deploy (Netlify) — ${{ steps.info.outputs.sha_short }}"
+          subject: "InsightFlow - Falha no deploy (Netlify) - ${{ steps.info.outputs.sha_short }}"
           to: ${{ secrets.NOTIFY_EMAIL }}
           from: "InsightFlow CI/CD <${{ secrets.GMAIL_USERNAME }}>"
           html_body: |
@@ -162,23 +153,9 @@ jobs:
               <div style="max-width:600px;margin:0 auto;padding:40px 20px">
                 <div style="background:#1e293b;border-radius:12px;padding:32px;border:1px solid #334155">
                   <div style="text-align:center;margin-bottom:24px">
-                    <h1 style="color:#ef4444;font-size:24px;margin:0">❌ Falha no Deploy</h1>
-                    <p style="color:#94a3b8;margin:8px 0 0">InsightFlow AI Hub • Netlify</p>
+                    <h1 style="color:#ef4444;font-size:24px;margin:0">Falha no Deploy</h1>
+                    <p style="color:#94a3b8;margin:8px 0 0">InsightFlow AI Hub - Netlify</p>
                   </div>
-                  <table style="width:100%;border-collapse:collapse">
-                    <tr style="border-bottom:1px solid #334155">
-                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Commit</td>
-                      <td style="padding:12px 0;text-align:right;font-family:monospace;font-size:13px">${{ steps.info.outputs.sha_short }}</td>
-                    </tr>
-                    <tr style="border-bottom:1px solid #334155">
-                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Mensagem</td>
-                      <td style="padding:12px 0;text-align:right;font-size:13px">${{ steps.info.outputs.message }}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding:12px 0;color:#94a3b8;font-size:14px">Autor</td>
-                      <td style="padding:12px 0;text-align:right;font-size:13px">${{ steps.info.outputs.author }}</td>
-                    </tr>
-                  </table>
                   <div style="text-align:center;margin-top:28px">
                     <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" style="background:#dc2626;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">
                       Ver Logs de Erro
