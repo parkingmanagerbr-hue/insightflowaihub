@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, 
@@ -58,7 +58,7 @@ const Admin = () => {
   const { toast } = useToast();
   const { isAdmin } = useAuth();
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setIsLoading(true);
     const { data, error } = await supabase
       .from('profiles')
@@ -76,13 +76,13 @@ const Admin = () => {
       setUsers(data as UserProfile[]);
     }
     setIsLoading(false);
-  };
+  }, [toast]);
 
   useEffect(() => {
     if (isAdmin) {
       fetchUsers();
     }
-  }, [isAdmin]);
+  }, [isAdmin, fetchUsers]);
 
   const handleAction = async () => {
     const { userId, action } = actionDialog;

@@ -41,8 +41,10 @@ async function setSecret(name, value, keyId, publicKey) {
 }
 
 const SECRETS = {
-  VERCEL_ORG_ID:             'team_BJZ13WbfG2MO9aOKJq3im7I6',
-  VERCEL_PROJECT_ID:         'prj_2MxDZRRW7JZEzOHJKXDXhn6guoYC',
+  // Netlify deployment
+  NETLIFY_AUTH_TOKEN:        'nfc_hu1vnnSShAcQebcHT7YeWaSZSeNhnKqF69bf',
+  NETLIFY_SITE_ID:           '5ddfc90a-c5f6-4080-9c7e-c8d29844d5ba',
+  // Supabase
   VITE_SUPABASE_URL:         'https://ehzikjukkowxvfkfiyxu.supabase.co',
   VITE_SUPABASE_PROJECT_ID:  'ehzikjukkowxvfkfiyxu',
   VITE_SUPABASE_PUBLISHABLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoemlranVra293eHZma2ZpeXh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDU0MjUsImV4cCI6MjA4NDA4MTQyNX0.FpqKa1pQgXNUCRaovR91zVw9SPp9ewA3_9Bm9IQfAzs',
@@ -55,9 +57,8 @@ const SECRETS = {
   for (const [name, value] of Object.entries(SECRETS)) {
     await setSecret(name, value, key_id, key);
   }
-  console.log('\n⚠️  Defina manualmente estes secrets sensíveis:');
+  console.log('\n⚠️  Defina manualmente estes secrets de email (opcional):');
   console.log('   URL: https://github.com/parkingmanagerbr-hue/insightflowaihub/settings/secrets/actions');
-  console.log('   - VERCEL_TOKEN         → token clássico em https://vercel.com/account/tokens');
   console.log('   - GMAIL_USERNAME       → ex: seuemail@gmail.com');
   console.log('   - GMAIL_APP_PASSWORD   → App Password do Google (16 chars sem espaços)');
   console.log('   - NOTIFY_EMAIL         → email que receberá as notificações de deploy');

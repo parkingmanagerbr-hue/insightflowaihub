@@ -13,6 +13,19 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          ui: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-tabs"],
+          charts: ["recharts"],
+          motion: ["framer-motion"],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
@@ -20,9 +33,9 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "icon-512x512.png"],
       manifest: {
-        name: "InsightFlow",
+        name: "InsightFlow AI Hub",
         short_name: "InsightFlow",
-        description: "Relatórios Inteligentes com Gemini e Power BI",
+        description: "Relatórios Inteligentes com Ollama e Power BI — IA 100% Local",
         theme_color: "#1E90FF",
         background_color: "#0A1F44",
         display: "standalone",
@@ -87,5 +100,10 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
   },
 }));

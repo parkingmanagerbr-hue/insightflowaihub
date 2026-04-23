@@ -337,7 +337,9 @@ const PowerBI = () => {
     if (selectedDashboard) {
       const iframe = document.getElementById('powerbi-iframe') as HTMLIFrameElement;
       if (iframe) {
-        iframe.src = iframe.src;
+        const src = iframe.getAttribute('src') || '';
+        iframe.setAttribute('src', '');
+        iframe.setAttribute('src', src);
         toast({
           title: 'Atualizando...',
           description: 'O dashboard está sendo recarregado',
