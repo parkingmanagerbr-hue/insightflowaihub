@@ -21,9 +21,6 @@ jobs:
     name: Deploy to Netlify
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment:
-      name: production
-      url: ${{ steps.extract_url.outputs.deploy_url }}
 
     outputs:
       deploy_url: ${{ steps.extract_url.outputs.deploy_url }}
@@ -53,16 +50,20 @@ jobs:
 
       - name: Deploy to Netlify
         id: deploy
-        uses: netlify/actions/cli@master
-        with:
-          args: deploy --dir=dist --prod --message "Deploy ${{ github.sha }} - ${{ github.event.head_commit.message }}"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          npm install -g netlify-cli
+          OUTPUT=$(netlify deploy --dir=dist --prod \
+            --message "Deploy ${{ github.sha }} - ${{ github.event.head_commit.message }}" \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --site ${{ secrets.NETLIFY_SITE_ID }} \
+            --json 2>&1)
+          echo "$OUTPUT"
+          DEPLOY_URL=$(echo "$OUTPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('url','https://insightflowaihub.netlify.app'))" 2>/dev/null || echo "https://insightflowaihub.netlify.app")
+          echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
 
       - name: Extract deploy URL
         id: extract_url
-        run: echo "deploy_url=${{ steps.deploy.outputs.NETLIFY_URL }}" >> $GITHUB_OUTPUT
+        run: echo "deploy_url=${{ steps.deploy.outputs.deploy_url }}" >> $GITHUB_OUTPUT
 
   notify:
     name: Email Notification
