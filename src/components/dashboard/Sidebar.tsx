@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Play,
   Download,
+  Settings2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -40,6 +41,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
   const adminItems = [
     { icon: Users, label: 'Administração', path: '/dashboard/admin' },
+    { icon: Settings2, label: 'Config. do Site', path: '/dashboard/site-config' },
   ];
 
   const NavItem = ({ item }: { item: typeof menuItems[0] }) => {

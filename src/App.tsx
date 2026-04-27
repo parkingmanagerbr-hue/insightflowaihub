@@ -18,6 +18,7 @@ import History from "./pages/dashboard/History";
 import Executions from "./pages/dashboard/Executions";
 import Settings from "./pages/dashboard/Settings";
 import Admin from "./pages/dashboard/Admin";
+import SiteConfig from "./pages/dashboard/SiteConfig";
 import UserApprove from "./pages/admin/UserApprove";
 import Plans from "./pages/Plans";
 
@@ -36,7 +37,14 @@ const App = () => (
             <Route path="/plans" element={<Plans />} />
             <Route path="/admin/approve/:id" element={<ProtectedRoute requireAdmin><UserApprove action="approve" /></ProtectedRoute>} />
             <Route path="/admin/reject/:id" element={<ProtectedRoute requireAdmin><UserApprove action="reject" /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<DashboardHome />} />
               <Route path="chat" element={<AIChat />} />
               <Route path="reports" element={<Reports />} />
@@ -45,6 +53,7 @@ const App = () => (
               <Route path="executions" element={<Executions />} />
               <Route path="settings" element={<Settings />} />
               <Route path="admin" element={<ProtectedRoute requireAdmin><Admin /></ProtectedRoute>} />
+              <Route path="site-config" element={<ProtectedRoute requireAdmin><SiteConfig /></ProtectedRoute>} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

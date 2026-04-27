@@ -33,6 +33,7 @@ import { useOllama } from '@/hooks/useOllama';
 import { streamChat, type OllamaChatMessage } from '@/services/ollamaService';
 import { supabase } from '@/integrations/supabase/client';
 import OllamaStatus from '@/components/OllamaStatus';
+import { validateSQL, sanitizeInput, checkRateLimit } from '@/lib/security';
 
 interface Message {
   id: string;
@@ -101,7 +102,7 @@ const AIChat = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
-  const { session } = useAuth();
+  const { session, isAdmin } = useAuth();
   const { selectedModel, models, status: ollamaStatus } = useOllama();
 
   const fetchConnections = useCallback(async () => {
@@ -170,6 +171,34 @@ const AIChat = () => {
       return;
     }
 
+    // ── Security: Rate limiting ─────────────────────────────────────
+    const userId = session?.user?.id ?? 'anonymous';
+    if (!checkRateLimit(`sql:${userId}`, 15, 0.5)) {
+      toast({
+        title: 'Limite de requisições atingido',
+        description: 'Aguarde alguns segundos antes de executar outra query.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // ── Security: SQL Injection Prevention ─────────────────────────
+    const validation = validateSQL(sql, isAdmin ?? false);
+    if (!validation.valid) {
+      toast({
+        title: 'Query bloqueada por segurança',
+        description: validation.error,
+        variant: 'destructive',
+      });
+      setQueryResults((prev) => ({
+        ...prev,
+        [messageId]: { success: false, error: validation.error ?? 'Query inválida' },
+      }));
+      return;
+    }
+
+    const safeSql = validation.sanitized ?? sql;
+
     setExecutingMessageId(messageId);
     setExpandedResults((prev) => ({ ...prev, [messageId]: true }));
 
@@ -182,7 +211,7 @@ const AIChat = () => {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session?.access_token}`,
           },
-          body: JSON.stringify({ connectionId: selectedConnection, sql }),
+          body: JSON.stringify({ connectionId: selectedConnection, sql: safeSql }),
         },
       );
 
@@ -226,8 +255,23 @@ const AIChat = () => {
   };
 
   const handleSend = async (messageText?: string) => {
-    const text = messageText || input.trim();
-    if (!text || isLoading) return;
+    const rawText = messageText || input.trim();
+    if (!rawText || isLoading) return;
+
+    // ── Security: sanitize user input before sending to AI ──────────
+    const text = sanitizeInput(rawText);
+    if (!text) return;
+
+    // ── Security: rate-limit chat messages ──────────────────────────
+    const userId = session?.user?.id ?? 'anonymous';
+    if (!checkRateLimit(`chat:${userId}`, 20, 2)) {
+      toast({
+        title: 'Muitas mensagens',
+        description: 'Você está enviando mensagens muito rápido. Aguarde alguns segundos.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     if (!ollamaStatus.connected) {
       toast({

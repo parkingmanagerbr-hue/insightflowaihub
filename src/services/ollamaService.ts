@@ -1,5 +1,7 @@
 // Ollama local AI service — connects to http://localhost:11434 by default
 
+import { validateOllamaURL, secureStorage } from '@/lib/security';
+
 export const OLLAMA_DEFAULT_URL = 'http://localhost:11434';
 export const OLLAMA_DEFAULT_MODEL = 'llama3';
 
@@ -22,11 +24,25 @@ export interface OllamaStatus {
 }
 
 function getBaseUrl(): string {
-  return localStorage.getItem('ollama_url') || OLLAMA_DEFAULT_URL;
+  const stored =
+    secureStorage.getConfig('ollama_url') ||
+    localStorage.getItem('ollama_url') ||   // legacy key migration
+    OLLAMA_DEFAULT_URL;
+
+  const result = validateOllamaURL(stored);
+  if (!result.valid) {
+    console.warn('[Security] Ollama URL bloqueada:', result.error, '— usando padrão.');
+    return OLLAMA_DEFAULT_URL;
+  }
+  return result.normalized ?? OLLAMA_DEFAULT_URL;
 }
 
 function getModel(): string {
-  return localStorage.getItem('ollama_model') || OLLAMA_DEFAULT_MODEL;
+  return (
+    secureStorage.getConfig('ollama_model') ||
+    localStorage.getItem('ollama_model') ||  // legacy key migration
+    OLLAMA_DEFAULT_MODEL
+  );
 }
 
 export async function checkOllamaStatus(): Promise<OllamaStatus> {
