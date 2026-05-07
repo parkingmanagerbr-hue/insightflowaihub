@@ -20,23 +20,23 @@ const Index = () => {
       <OllamaSection />
       <PlansSection />
       {/* Video Showcase */}
-      <section className="py-24 bg-secondary/30">
-        <div className="container mx-auto px-4 text-center">
+      <section className="relative py-24 bg-secondary/30 overflow-hidden">
+        <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Veja o <span className="gradient-text">InsightFlow</span> em Ação
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-10">
             Conheça as principais funcionalidades da plataforma
           </p>
-          <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl border border-border">
+          <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl border border-border bg-black">
             <video
-              className="w-full"
+              className="block w-full h-auto max-w-full aspect-video object-contain"
               controls
               autoPlay
               muted
               loop
               playsInline
-              poster=""
+              preload="metadata"
             >
               <source src="/insightflow-showcase.mp4" type="video/mp4" />
             </video>
