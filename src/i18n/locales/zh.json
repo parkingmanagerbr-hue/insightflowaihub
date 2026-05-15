@@ -1,0 +1,481 @@
+{
+  "language": {
+    "select": "选择语言"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "back": "返回",
+    "search": "搜索",
+    "filter": "筛选",
+    "export": "导出",
+    "import": "导入",
+    "dashboard": "仪表板",
+    "settings": "设置",
+    "delete": "删除",
+    "edit": "编辑",
+    "copy": "复制",
+    "execute": "执行",
+    "yes": "是",
+    "no": "否",
+    "confirm": "确认",
+    "close": "关闭",
+    "send": "发送",
+    "user": "用户"
+  },
+  "nav": {
+    "features": "功能",
+    "security": "安全",
+    "plans": "方案",
+    "pwa": "PWA",
+    "auth": "认证",
+    "ollama": "Ollama",
+    "contact": "联系",
+    "login": "登录",
+    "getStarted": "开始"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Powered by Ollama - 100% 本地AI",
+      "title": "智能报告与",
+      "subtitle": "连接您的数据库，通过Ollama使用本地AI生成SQL，并使用Power BI Embedded可视化所有内容。完全隐私 - 您的数据永远不会离开您的机器。",
+      "cta": "立即开始",
+      "viewFeatures": "查看功能",
+      "multiDatabase": "多数据库",
+      "sqlOllama": "本地Ollama SQL",
+      "powerBIEmbedded": "Power BI 嵌入"
+    },
+    "video": {
+      "title": "观看InsightFlow实际运行",
+      "subtitle": "了解平台的主要功能"
+    },
+    "features": {
+      "title": "完整",
+      "titleHighlight": "功能",
+      "subtitle": "您将数据转化为可操作洞察所需的一切",
+      "items": {
+        "multiDb": {
+          "title": "多数据库连接",
+          "desc": "PostgreSQL、MySQL、SQL Server、Oracle，具有安全的凭证加密。"
+        },
+        "sqlAI": {
+          "title": "AI自动SQL",
+          "desc": "用自然语言描述，Ollama在本地生成优化的SQL。"
+        },
+        "execute": {
+          "title": "直接执行",
+          "desc": "将生成的查询直接在数据库上执行。"
+        },
+        "powerBI": {
+          "title": "Power BI 嵌入",
+          "desc": "直接在系统中可视化交互式仪表板。"
+        },
+        "history": {
+          "title": "完整历史记录",
+          "desc": "访问所有生成的SQL查询，并可选择重新执行。"
+        },
+        "savedResults": {
+          "title": "保存的结果",
+          "desc": "执行历史记录及结果预览。"
+        },
+        "exportResults": {
+          "title": "导出结果",
+          "desc": "一键将数据导出为CSV、Excel或JSON。"
+        },
+        "encryption": {
+          "title": "安全加密",
+          "desc": "使用AES-GCM加密密码，每个用户有唯一密钥。"
+        },
+        "reports": {
+          "title": "智能报告",
+          "desc": "基于您的数据自动创建报告。"
+        },
+        "secureQueries": {
+          "title": "安全查询",
+          "desc": "仅允许SELECT，防止SQL注入。"
+        },
+        "analyticsChat": {
+          "title": "分析聊天",
+          "desc": "与AI讨论数据、SQL和Power BI。"
+        },
+        "rerun": {
+          "title": "重新运行查询",
+          "desc": "在几秒钟内重新执行历史记录中的任何查询。"
+        },
+        "multiTenant": {
+          "title": "多租户",
+          "desc": "每个用户拥有自己的数据和连接。"
+        },
+        "kpis": {
+          "title": "自动KPI",
+          "desc": "自动识别相关指标。"
+        },
+        "performance": {
+          "title": "高性能",
+          "desc": "快速执行，实时反馈。"
+        },
+        "api": {
+          "title": "公共API",
+          "desc": "通过API将InsightFlow与其他系统集成。"
+        }
+      }
+    },
+    "security": {
+      "badge": "企业安全",
+      "title": "安全",
+      "titleHighlight": "第一位",
+      "subtitle": "采用行业最佳实践全面保护您的数据",
+      "items": {
+        "sanitization": {
+          "title": "输入净化",
+          "desc": "所有输入都经过验证和净化，以防止恶意注入。"
+        },
+        "attackProtection": {
+          "title": "攻击防护",
+          "desc": "多层防御阻止SQL注入、XSS和CSRF攻击。"
+        },
+        "middleware": {
+          "title": "安全中间件",
+          "desc": "专用中间件从任何响应中删除敏感数据。"
+        },
+        "secureLogs": {
+          "title": "安全日志",
+          "desc": "日志不包含机密信息、凭证或堆栈跟踪。"
+        },
+        "rateLimiting": {
+          "title": "速率限制",
+          "desc": "通过请求限制防止暴力破解和滥用。"
+        },
+        "zeroExposure": {
+          "title": "零暴露",
+          "desc": "我们从不返回连接字符串、凭证或原始SQL。"
+        }
+      }
+    },
+    "authSection": {
+      "title": "强大的",
+      "titleHighlight": "身份验证",
+      "subtitle": "完整的身份验证系统，具有手动用户审批，确保只有授权人员才能访问平台。",
+      "flowTitle": "审批流程",
+      "step1": "用户注册",
+      "step1Status": "状态: pending_approval",
+      "step2": "管理员收到邮件",
+      "step2Status": "包含批准/拒绝按钮",
+      "step3": "用户已批准",
+      "step3Status": "状态: active - 邮件已发送",
+      "items": {
+        "secureRegister": {
+          "title": "安全注册",
+          "desc": "使用电子邮件和密码注册，完整验证。"
+        },
+        "protectedLogin": {
+          "title": "受保护登录",
+          "desc": "使用JWT令牌和自动刷新进行身份验证。"
+        },
+        "passwordRecovery": {
+          "title": "密码恢复",
+          "desc": "通过电子邮件进行原生恢复流程。"
+        },
+        "manualApproval": {
+          "title": "手动审批",
+          "desc": "新用户由管理员批准。"
+        },
+        "emailNotifications": {
+          "title": "邮件通知",
+          "desc": "自动发送批准和拒绝邮件。"
+        },
+        "routeProtection": {
+          "title": "路由保护",
+          "desc": "验证JWT和用户状态的中间件。"
+        }
+      }
+    },
+    "pwa": {
+      "badge": "渐进式Web应用",
+      "title": "作为",
+      "titleHighlight": "原生应用安装",
+      "subtitle": "直接从浏览器获得原生应用体验，无需应用商店",
+      "items": {
+        "easyInstall": {
+          "title": "轻松安装",
+          "desc": "在任何设备上作为原生应用安装"
+        },
+        "offline": {
+          "title": "离线工作",
+          "desc": "即使没有互联网也可以访问缓存数据"
+        },
+        "splashScreen": {
+          "title": "启动画面",
+          "desc": "自定义加载屏幕"
+        },
+        "mobileFirst": {
+          "title": "移动优先",
+          "desc": "为移动设备优化的界面"
+        },
+        "desktopReady": {
+          "title": "桌面就绪",
+          "desc": "在桌面上也有完整体验"
+        },
+        "autoUpdate": {
+          "title": "自动更新",
+          "desc": "始终使用最新版本"
+        }
+      }
+    },
+    "ollama": {
+      "badge": "Powered by Ollama - 本地AI",
+      "title": "人工智能",
+      "titleHighlight": "无需云端",
+      "subtitle": "现代LLM的全部功能在您的机器上运行 - 私密、快速且无每令牌费用",
+      "chatTitle": "Ollama 聊天",
+      "chatSubtitle": "本地运行中",
+      "online": "在线",
+      "ctaTitle": "准备好开始了吗？",
+      "ctaSubtitle": "安装Ollama，下载模型并连接到InsightFlow",
+      "downloadOllama": "下载Ollama",
+      "changeModel": "在设置中更改模型",
+      "items": {
+        "sqlGen": {
+          "title": "SQL生成",
+          "desc": "描述您的需求，Ollama在本地生成优化的SQL，无需将数据发送到云端。"
+        },
+        "execute": {
+          "title": "直接执行",
+          "desc": "直接在连接的数据库上执行生成的查询。"
+        },
+        "viewResults": {
+          "title": "结果查看器",
+          "desc": "在表格中查看最多100条记录的预览结果。"
+        },
+        "flexExport": {
+          "title": "灵活导出",
+          "desc": "即时将结果导出为CSV、Excel或JSON。"
+        },
+        "dataAnalysis": {
+          "title": "数据分析",
+          "desc": "自动识别数据中的模式、趋势和异常。"
+        },
+        "private": {
+          "title": "100%私密",
+          "desc": "您的数据永远不会离开您的机器。通过Ollama使用本地AI - 无需外部API密钥。"
+        },
+        "multiModel": {
+          "title": "多模型",
+          "desc": "在Llama 3、Mistral、CodeLlama、Phi-3和任何Ollama模型之间选择。"
+        },
+        "continuousChat": {
+          "title": "连续对话",
+          "desc": "具有上下文记忆的分析聊天，实现更精确的迭代。"
+        },
+        "noLatency": {
+          "title": "无网络延迟",
+          "desc": "更快的响应，因为AI直接在您的本地CPU/GPU上运行。"
+        },
+        "offlineWork": {
+          "title": "离线工作",
+          "desc": "无需互联网工作 - Ollama完全在您的机器上运行。"
+        },
+        "executiveSummary": {
+          "title": "执行摘要",
+          "desc": "本地生成的准备好演示的摘要报告。"
+        },
+        "gpuAccel": {
+          "title": "GPU加速",
+          "desc": "利用您的NVIDIA/AMD GPU通过Ollama进行超快推理。"
+        }
+      }
+    },
+    "gemini": {
+      "badge": "Powered by Gemini AI",
+      "title": "前沿",
+      "titleHighlight": "人工智能",
+      "subtitle": "用Gemini将自然语言转化为强大的洞察",
+      "chatTitle": "分析聊天",
+      "chatSubtitle": "与您的数据对话"
+    },
+    "plans": {
+      "badge": "方案与价格",
+      "title": "选择",
+      "titleHighlight": "合适的方案",
+      "subtitle": "立即开始将数据转化为洞察。随时取消。",
+      "mostPopular": "最受欢迎",
+      "subscribe": "立即订阅",
+      "monthly": {
+        "name": "月付",
+        "period": "/月",
+        "features": [
+          "连接多个数据库",
+          "AI驱动的SQL生成",
+          "无限历史记录",
+          "CSV/Excel/PDF导出",
+          "Power BI集成"
+        ]
+      },
+      "annual": {
+        "name": "年付",
+        "period": "/年",
+        "features": [
+          "月付方案的一切",
+          "免费2个月",
+          "优先支持",
+          "高级AI聊天",
+          "节省R$ 198"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "借助Ollama（本地AI）的力量和Power BI可视化，将您的数据转化为可操作的洞察。",
+      "product": "产品",
+      "company": "公司",
+      "legal": "法律",
+      "copyright": "2024 InsightFlow. 版权所有。",
+      "links": {
+        "features": "功能",
+        "security": "安全",
+        "pricing": "价格",
+        "api": "API",
+        "about": "关于我们",
+        "blog": "博客",
+        "careers": "招聘",
+        "partners": "合作伙伴",
+        "terms": "使用条款",
+        "privacy": "隐私政策",
+        "cookies": "Cookies",
+        "lgpd": "数据保护"
+      }
+    }
+  },
+  "auth": {
+    "login": "登录",
+    "register": "创建账户",
+    "forgotPassword": "恢复密码",
+    "resetPassword": "重置密码",
+    "loginSubtitle": "访问您的InsightFlow账户",
+    "registerSubtitle": "创建您的账户以开始",
+    "forgotSubtitle": "输入您的电子邮件进行恢复",
+    "resetSubtitle": "输入您的新密码",
+    "email": "电子邮件",
+    "emailPlaceholder": "您的@邮箱.com",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "fullName": "全名",
+    "fullNamePlaceholder": "您的名字",
+    "forgotLink": "忘记密码",
+    "noAccount": "没有账户？",
+    "hasAccount": "已有账户？",
+    "createAccount": "创建账户",
+    "backToLogin": "返回登录",
+    "backToHome": "返回首页",
+    "submitLogin": "登录",
+    "submitRegister": "创建账户",
+    "submitForgot": "发送",
+    "loading": "加载中...",
+    "pendingApproval": {
+      "title": "等待审批",
+      "message": "您的账户正在等待审批。一旦管理员批准您的注册，您将收到一封电子邮件。"
+    },
+    "rejected": {
+      "title": "访问被拒绝",
+      "message": "您的访问请求已被拒绝。请联系管理员获取更多信息。"
+    },
+    "errors": {
+      "invalidEmail": "无效电子邮件",
+      "passwordMin": "密码至少需要6个字符",
+      "passwordMismatch": "密码不匹配",
+      "invalidCredentials": "无效的电子邮件或密码",
+      "emailAlreadyRegistered": "此电子邮件已注册",
+      "loginError": "登录错误",
+      "registerError": "注册错误"
+    },
+    "success": {
+      "registered": "注册完成！",
+      "registeredMessage": "您的账户正在等待审批。批准后您将收到一封电子邮件。",
+      "emailSent": "电子邮件已发送！",
+      "emailSentMessage": "请检查您的收件箱以重置密码。"
+    }
+  },
+  "dashboard": {
+    "welcome": "你好",
+    "welcomeSubtitle": "欢迎使用InsightFlow。以下是您活动的摘要。",
+    "reportsGenerated": "生成的报告",
+    "sqlQueries": "SQL查询",
+    "avgTime": "平均时间",
+    "successRate": "成功率",
+    "recentReports": "最近报告",
+    "noRecentReports": "暂无最近报告",
+    "status": {
+      "completed": "已完成",
+      "processing": "处理中",
+      "failed": "失败"
+    },
+    "quickActions": "快速操作",
+    "newReport": "新报告",
+    "viewHistory": "查看历史"
+  },
+  "sidebar": {
+    "dashboard": "仪表板",
+    "aiChat": "AI 聊天",
+    "generateReport": "生成报告",
+    "powerBI": "Power BI",
+    "sqlHistory": "SQL历史",
+    "executions": "执行",
+    "settings": "设置",
+    "administration": "管理",
+    "siteConfig": "网站配置",
+    "logout": "退出"
+  },
+  "reports": {
+    "title": "生成报告",
+    "subtitle": "用自然语言描述您的需求",
+    "generate": "生成SQL",
+    "schedule": "安排",
+    "templates": "模板",
+    "sales": "销售",
+    "financial": "财务",
+    "customers": "客户",
+    "export": {
+      "csv": "导出CSV",
+      "excel": "导出Excel",
+      "json": "导出JSON"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "profile": "个人资料",
+    "notifications": "通知",
+    "database": "数据库",
+    "ollama": "Ollama",
+    "save": "保存",
+    "saved": "已保存",
+    "check": "检查",
+    "reset": "重置",
+    "connected": "Ollama已连接",
+    "offline": "Ollama离线",
+    "ollamaConfig": "Ollama配置",
+    "ollamaConfigDesc": "配置本地Ollama的URL和默认模型",
+    "ollamaUrl": "Ollama URL"
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "message": "哎呀！您正在寻找的页面不存在。",
+    "backHome": "返回首页"
+  },
+  "mobile": {
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "dashboard": "仪表板",
+    "generateReport": "生成报告",
+    "history": "历史",
+    "settings": "设置",
+    "administration": "管理",
+    "features": "功能",
+    "security": "安全",
+    "authentication": "认证",
+    "gemini": "Gemini",
+    "contact": "联系",
+    "logout": "退出"
+  }
+}

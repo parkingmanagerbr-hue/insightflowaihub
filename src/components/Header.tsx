@@ -1,21 +1,24 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
-
-const navLinks = [
-  { href: "#funcionalidades", label: "Funcionalidades" },
-  { href: "#seguranca", label: "Segurança" },
-  { href: "#planos", label: "Planos" },
-  { href: "#pwa", label: "PWA" },
-  { href: "#auth", label: "Auth" },
-  { href: "#ollama", label: "Ollama" },
-  { href: "#contato", label: "Contato" },
-];
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const Header = () => {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
+
+  const navLinks = [
+    { href: "#funcionalidades", label: t("nav.features") },
+    { href: "#seguranca", label: t("nav.security") },
+    { href: "#planos", label: t("nav.plans") },
+    { href: "#pwa", label: t("nav.pwa") },
+    { href: "#auth", label: t("nav.auth") },
+    { href: "#ollama", label: t("nav.ollama") },
+    { href: "#contato", label: t("nav.contact") },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,18 +65,21 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            <div className="hidden md:block">
+              <LanguageSwitcher compact />
+            </div>
             <Button 
               asChild
               variant="ghost"
               className="text-white/70 hover:text-white hover:bg-white/10"
             >
-              <a href="/plans">Planos</a>
+              <a href="/plans">{t("nav.plans")}</a>
             </Button>
             <Button 
               asChild
               className="bg-[hsl(210,100%,56%)] hover:bg-[hsl(210,100%,65%)] text-white"
             >
-              <a href="/auth">Entrar</a>
+              <a href="/auth">{t("nav.login")}</a>
             </Button>
           </div>
         </div>

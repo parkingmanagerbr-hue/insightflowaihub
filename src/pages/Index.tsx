@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
@@ -9,6 +10,8 @@ import PlansSection from "@/components/PlansSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -19,14 +22,13 @@ const Index = () => {
       <PWASection />
       <OllamaSection />
       <PlansSection />
-      {/* Video Showcase */}
       <section className="relative py-24 bg-secondary/30 overflow-hidden">
         <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Veja o <span className="gradient-text">InsightFlow</span> em Ação
+            {t("landing.video.title")}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-10">
-            Conheça as principais funcionalidades da plataforma
+            {t("landing.video.subtitle")}
           </p>
           <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl border border-border bg-black">
             <video

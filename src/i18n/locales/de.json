@@ -1,0 +1,481 @@
+{
+  "language": {
+    "select": "Sprache wahlen"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "back": "Zuruck",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "dashboard": "Dashboard",
+    "settings": "Einstellungen",
+    "delete": "Loschen",
+    "edit": "Bearbeiten",
+    "copy": "Kopieren",
+    "execute": "Ausfuhren",
+    "yes": "Ja",
+    "no": "Nein",
+    "confirm": "Bestatigen",
+    "close": "Schliessen",
+    "send": "Senden",
+    "user": "Benutzer"
+  },
+  "nav": {
+    "features": "Funktionen",
+    "security": "Sicherheit",
+    "plans": "Plane",
+    "pwa": "PWA",
+    "auth": "Auth",
+    "ollama": "Ollama",
+    "contact": "Kontakt",
+    "login": "Anmelden",
+    "getStarted": "Loslegen"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Powered by Ollama - 100% lokale KI",
+      "title": "Intelligente Berichte mit",
+      "subtitle": "Verbinden Sie Ihre Datenbank, generieren Sie SQL mit lokaler KI uber Ollama und visualisieren Sie alles mit Power BI Embedded. Vollstandige Privatsphare.",
+      "cta": "Jetzt starten",
+      "viewFeatures": "Funktionen ansehen",
+      "multiDatabase": "Multi-Datenbank",
+      "sqlOllama": "SQL mit lokalem Ollama",
+      "powerBIEmbedded": "Power BI Embedded"
+    },
+    "video": {
+      "title": "Sehen Sie InsightFlow in Aktion",
+      "subtitle": "Entdecken Sie die wichtigsten Funktionen der Plattform"
+    },
+    "features": {
+      "title": "Vollstandige",
+      "titleHighlight": "Funktionen",
+      "subtitle": "Alles was Sie benotigen, um Daten in verwertbare Erkenntnisse umzuwandeln",
+      "items": {
+        "multiDb": {
+          "title": "Multi-Datenbank-Verbindung",
+          "desc": "PostgreSQL, MySQL, SQL Server, Oracle mit sicherer Anmeldedaten-Verschlusselung."
+        },
+        "sqlAI": {
+          "title": "Automatisches SQL mit KI",
+          "desc": "Beschreiben Sie in naturlicher Sprache, Ollama generiert das optimierte SQL lokal."
+        },
+        "execute": {
+          "title": "Direkte Ausfuhrung",
+          "desc": "Fuhren Sie generierte Abfragen direkt in Ihrer Datenbank aus."
+        },
+        "powerBI": {
+          "title": "Power BI Eingebettet",
+          "desc": "Visualisieren Sie interaktive Dashboards direkt im System."
+        },
+        "history": {
+          "title": "Vollstandiger Verlauf",
+          "desc": "Greifen Sie auf alle generierten SQL-Abfragen zu mit Option zur Wiederausfuhrung."
+        },
+        "savedResults": {
+          "title": "Gespeicherte Ergebnisse",
+          "desc": "Ausfuhrungsverlauf mit Ergebnisvorschau."
+        },
+        "exportResults": {
+          "title": "Ergebnisse exportieren",
+          "desc": "Exportieren Sie Daten mit einem Klick in CSV, Excel oder JSON."
+        },
+        "encryption": {
+          "title": "Sichere Verschlusselung",
+          "desc": "Passworter verschlusselt mit AES-GCM und eindeutigem Schlussel pro Benutzer."
+        },
+        "reports": {
+          "title": "Intelligente Berichte",
+          "desc": "Automatische Berichtserstellung basierend auf Ihren Daten."
+        },
+        "secureQueries": {
+          "title": "Sichere Abfragen",
+          "desc": "Nur SELECT erlaubt, Schutz gegen SQL-Injektion."
+        },
+        "analyticsChat": {
+          "title": "Analyse-Chat",
+          "desc": "Chatten Sie mit der KI uber Daten, SQL und Power BI."
+        },
+        "rerun": {
+          "title": "Abfragen wiederholen",
+          "desc": "Fuhren Sie jede Abfrage aus dem Verlauf in Sekunden erneut aus."
+        },
+        "multiTenant": {
+          "title": "Mehrmandantenfahig",
+          "desc": "Jeder Benutzer mit seinen eigenen Daten und Verbindungen."
+        },
+        "kpis": {
+          "title": "Automatische KPIs",
+          "desc": "Automatische Identifizierung relevanter Metriken."
+        },
+        "performance": {
+          "title": "Hohe Leistung",
+          "desc": "Schnelle Ausfuhrung mit Echtzeit-Feedback."
+        },
+        "api": {
+          "title": "Offentliche API",
+          "desc": "Integrieren Sie InsightFlow mit anderen Systemen uber API."
+        }
+      }
+    },
+    "security": {
+      "badge": "Unternehmenssicherheit",
+      "title": "Sicherheit",
+      "titleHighlight": "An Erster Stelle",
+      "subtitle": "Vollstandiger Schutz Ihrer Daten mit branchenbesten Praktiken",
+      "items": {
+        "sanitization": {
+          "title": "Eingabe-Bereinigung",
+          "desc": "Alle Eingaben werden validiert und bereinigt, um bosartige Injektionen zu verhindern."
+        },
+        "attackProtection": {
+          "title": "Angriffsschutz",
+          "desc": "Blockierung von SQL-Injektion, XSS und CSRF mit mehreren Verteidigungsschichten."
+        },
+        "middleware": {
+          "title": "Sicherheits-Middleware",
+          "desc": "Dedizierte Middleware entfernt sensible Daten aus jeder Antwort."
+        },
+        "secureLogs": {
+          "title": "Sichere Protokolle",
+          "desc": "Protokolle enthalten keine vertraulichen Informationen oder Stack-Traces."
+        },
+        "rateLimiting": {
+          "title": "Ratenbegrenzung",
+          "desc": "Schutz gegen Brute-Force und Missbrauch mit Anfragelimits."
+        },
+        "zeroExposure": {
+          "title": "Null Exposition",
+          "desc": "Wir geben niemals Verbindungszeichenfolgen, Anmeldedaten oder rohes SQL zuruck."
+        }
+      }
+    },
+    "authSection": {
+      "title": "Robuste",
+      "titleHighlight": "Authentifizierung",
+      "subtitle": "Vollstandiges Authentifizierungssystem mit manueller Benutzergenehmigung.",
+      "flowTitle": "Genehmigungsablauf",
+      "step1": "Benutzer registriert sich",
+      "step1Status": "Status: pending_approval",
+      "step2": "Admin erhalt E-Mail",
+      "step2Status": "Mit Genehmigen/Ablehnen-Schaltflachen",
+      "step3": "Benutzer genehmigt",
+      "step3Status": "Status: active - E-Mail gesendet",
+      "items": {
+        "secureRegister": {
+          "title": "Sichere Registrierung",
+          "desc": "Anmeldung mit E-Mail und Passwort mit vollstandiger Validierung."
+        },
+        "protectedLogin": {
+          "title": "Geschutzter Login",
+          "desc": "Authentifizierung mit JWT-Tokens und automatischer Aktualisierung."
+        },
+        "passwordRecovery": {
+          "title": "Passwort-Wiederherstellung",
+          "desc": "Nativer Wiederherstellungsablauf per E-Mail."
+        },
+        "manualApproval": {
+          "title": "Manuelle Genehmigung",
+          "desc": "Neue Benutzer werden von Administratoren genehmigt."
+        },
+        "emailNotifications": {
+          "title": "E-Mail-Benachrichtigungen",
+          "desc": "Automatische Genehmigungs- und Ablehnungs-E-Mails."
+        },
+        "routeProtection": {
+          "title": "Routenschutz",
+          "desc": "Middleware, das JWT und Benutzerstatus validiert."
+        }
+      }
+    },
+    "pwa": {
+      "badge": "Progressive Web App",
+      "title": "Als native",
+      "titleHighlight": "App installieren",
+      "subtitle": "Native App-Erfahrung direkt aus dem Browser, ohne App-Stores",
+      "items": {
+        "easyInstall": {
+          "title": "Einfache Installation",
+          "desc": "Als native App auf jedem Gerat installieren"
+        },
+        "offline": {
+          "title": "Funktioniert offline",
+          "desc": "Auf zwischengespeicherte Daten auch ohne Internet zugreifen"
+        },
+        "splashScreen": {
+          "title": "Startbildschirm",
+          "desc": "Benutzerdefinierter Ladebildschirm"
+        },
+        "mobileFirst": {
+          "title": "Mobile First",
+          "desc": "Fur mobile Gerate optimierte Oberflache"
+        },
+        "desktopReady": {
+          "title": "Desktop-bereit",
+          "desc": "Vollstandige Erfahrung auch auf dem Desktop"
+        },
+        "autoUpdate": {
+          "title": "Automatische Updates",
+          "desc": "Immer die neueste verfugbare Version"
+        }
+      }
+    },
+    "ollama": {
+      "badge": "Powered by Ollama - Lokale KI",
+      "title": "Kunstliche Intelligenz",
+      "titleHighlight": "ohne die Cloud",
+      "subtitle": "Die volle Leistung moderner LLMs auf Ihrer Maschine - privat, schnell und ohne Kosten pro Token",
+      "chatTitle": "Ollama Chat",
+      "chatSubtitle": "lauft lokal",
+      "online": "Online",
+      "ctaTitle": "Bereit anzufangen?",
+      "ctaSubtitle": "Installieren Sie Ollama, laden Sie ein Modell herunter und verbinden Sie sich mit InsightFlow",
+      "downloadOllama": "Ollama herunterladen",
+      "changeModel": "Modell in den Einstellungen andern",
+      "items": {
+        "sqlGen": {
+          "title": "SQL-Generierung",
+          "desc": "Beschreiben Sie was Sie benotigen und Ollama generiert optimiertes SQL lokal."
+        },
+        "execute": {
+          "title": "Direkte Ausfuhrung",
+          "desc": "Fuhren Sie die generierte Abfrage direkt in Ihrer verbundenen Datenbank aus."
+        },
+        "viewResults": {
+          "title": "Ergebnisanzeige",
+          "desc": "Sehen Sie Ergebnisse in einer Tabelle mit Vorschau von bis zu 100 Datensatzen."
+        },
+        "flexExport": {
+          "title": "Flexibler Export",
+          "desc": "Exportieren Sie Ergebnisse sofort in CSV, Excel oder JSON."
+        },
+        "dataAnalysis": {
+          "title": "Datenanalyse",
+          "desc": "Automatische Identifizierung von Mustern, Trends und Anomalien in Ihren Daten."
+        },
+        "private": {
+          "title": "100% Privat",
+          "desc": "Ihre Daten verlassen nie Ihre Maschine. Lokale KI via Ollama - keine externen API-Schlussel."
+        },
+        "multiModel": {
+          "title": "Multi-Modell",
+          "desc": "Wahlen Sie zwischen Llama 3, Mistral, CodeLlama, Phi-3 und jedem Ollama-Modell."
+        },
+        "continuousChat": {
+          "title": "Kontinuierlicher Chat",
+          "desc": "Analyse-Chat mit Kontextgedachtnis fur prazisere Iterationen."
+        },
+        "noLatency": {
+          "title": "Keine Netzwerklatenz",
+          "desc": "Schnellere Antworten, da die KI direkt auf Ihrer lokalen CPU/GPU lauft."
+        },
+        "offlineWork": {
+          "title": "Funktioniert offline",
+          "desc": "Arbeiten Sie ohne Internet - Ollama lauft vollstandig auf Ihrer Maschine."
+        },
+        "executiveSummary": {
+          "title": "Managementzusammenfassung",
+          "desc": "Zusammengefasste Berichte bereit fur Prasentationen, lokal generiert."
+        },
+        "gpuAccel": {
+          "title": "GPU-beschleunigt",
+          "desc": "Nutzen Sie Ihre NVIDIA/AMD-GPU fur ultraschnelle Inferenz mit Ollama."
+        }
+      }
+    },
+    "gemini": {
+      "badge": "Powered by Gemini AI",
+      "title": "Modernste",
+      "titleHighlight": "Kunstliche Intelligenz",
+      "subtitle": "Transformieren Sie naturliche Sprache in kraftvolle Erkenntnisse mit Gemini",
+      "chatTitle": "Analyse-Chat",
+      "chatSubtitle": "Chatten Sie mit Ihren Daten"
+    },
+    "plans": {
+      "badge": "Plane und Preise",
+      "title": "Wahlen Sie den",
+      "titleHighlight": "richtigen Plan",
+      "subtitle": "Beginnen Sie jetzt, Daten in Erkenntnisse umzuwandeln. Jederzeit kundbar.",
+      "mostPopular": "Am Beliebtesten",
+      "subscribe": "Jetzt abonnieren",
+      "monthly": {
+        "name": "Monatlich",
+        "period": "/Monat",
+        "features": [
+          "Verbindung zu mehreren Datenbanken",
+          "KI-gestutztes SQL-Generierung",
+          "Unbegrenzter Verlauf",
+          "CSV/Excel/PDF-Export",
+          "Power BI-Integration"
+        ]
+      },
+      "annual": {
+        "name": "Jahrlich",
+        "period": "/Jahr",
+        "features": [
+          "Alles aus dem Monatsplan",
+          "2 Monate kostenlos",
+          "Prioritatssupport",
+          "Erweiterter KI-Chat",
+          "Sparen Sie R$ 198"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Transformieren Sie Ihre Daten in verwertbare Erkenntnisse mit der Leistung von Ollama (lokale KI) und Power BI-Visualisierung.",
+      "product": "Produkt",
+      "company": "Unternehmen",
+      "legal": "Rechtliches",
+      "copyright": "2024 InsightFlow. Alle Rechte vorbehalten.",
+      "links": {
+        "features": "Funktionen",
+        "security": "Sicherheit",
+        "pricing": "Preise",
+        "api": "API",
+        "about": "Uber uns",
+        "blog": "Blog",
+        "careers": "Karriere",
+        "partners": "Partner",
+        "terms": "Nutzungsbedingungen",
+        "privacy": "Datenschutzrichtlinie",
+        "cookies": "Cookies",
+        "lgpd": "Datenschutz"
+      }
+    }
+  },
+  "auth": {
+    "login": "Anmelden",
+    "register": "Konto erstellen",
+    "forgotPassword": "Passwort wiederherstellen",
+    "resetPassword": "Passwort zurucksetzen",
+    "loginSubtitle": "Auf Ihr InsightFlow-Konto zugreifen",
+    "registerSubtitle": "Erstellen Sie Ihr Konto, um loszulegen",
+    "forgotSubtitle": "Geben Sie Ihre E-Mail zur Wiederherstellung ein",
+    "resetSubtitle": "Geben Sie Ihr neues Passwort ein",
+    "email": "E-Mail",
+    "emailPlaceholder": "ihre@email.com",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestatigen",
+    "fullName": "Vollstandiger Name",
+    "fullNamePlaceholder": "Ihr Name",
+    "forgotLink": "Ich habe mein Passwort vergessen",
+    "noAccount": "Kein Konto?",
+    "hasAccount": "Bereits ein Konto?",
+    "createAccount": "Konto erstellen",
+    "backToLogin": "Zuruck zum Login",
+    "backToHome": "Zuruck zur Startseite",
+    "submitLogin": "Anmelden",
+    "submitRegister": "Konto erstellen",
+    "submitForgot": "Senden",
+    "loading": "Laden...",
+    "pendingApproval": {
+      "title": "Auf Genehmigung wartend",
+      "message": "Ihr Konto wartet auf Genehmigung. Sie erhalten eine E-Mail, sobald ein Administrator Ihre Registrierung genehmigt hat."
+    },
+    "rejected": {
+      "title": "Zugang Verweigert",
+      "message": "Ihr Zugriffsantrag wurde abgelehnt. Wenden Sie sich fur weitere Informationen an den Administrator."
+    },
+    "errors": {
+      "invalidEmail": "Ungultige E-Mail",
+      "passwordMin": "Das Passwort muss mindestens 6 Zeichen haben",
+      "passwordMismatch": "Passworter stimmen nicht uberein",
+      "invalidCredentials": "Ungultige E-Mail oder Passwort",
+      "emailAlreadyRegistered": "Diese E-Mail ist bereits registriert",
+      "loginError": "Anmeldefehler",
+      "registerError": "Registrierungsfehler"
+    },
+    "success": {
+      "registered": "Registrierung abgeschlossen!",
+      "registeredMessage": "Ihr Konto wartet auf Genehmigung. Sie erhalten eine E-Mail, wenn es genehmigt wird.",
+      "emailSent": "E-Mail gesendet!",
+      "emailSentMessage": "Uberprufen Sie Ihren Posteingang, um Ihr Passwort zuruckzusetzen."
+    }
+  },
+  "dashboard": {
+    "welcome": "Hallo",
+    "welcomeSubtitle": "Willkommen bei InsightFlow. Hier ist eine Zusammenfassung Ihrer Aktivitaten.",
+    "reportsGenerated": "Generierte Berichte",
+    "sqlQueries": "SQL-Abfragen",
+    "avgTime": "Durchschn. Zeit",
+    "successRate": "Erfolgsrate",
+    "recentReports": "Aktuelle Berichte",
+    "noRecentReports": "Keine aktuellen Berichte",
+    "status": {
+      "completed": "Abgeschlossen",
+      "processing": "In Bearbeitung",
+      "failed": "Fehlgeschlagen"
+    },
+    "quickActions": "Schnellaktionen",
+    "newReport": "Neuer Bericht",
+    "viewHistory": "Verlauf anzeigen"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "aiChat": "KI-Chat",
+    "generateReport": "Bericht generieren",
+    "powerBI": "Power BI",
+    "sqlHistory": "SQL-Verlauf",
+    "executions": "Ausfuhrungen",
+    "settings": "Einstellungen",
+    "administration": "Verwaltung",
+    "siteConfig": "Website-Konfig.",
+    "logout": "Abmelden"
+  },
+  "reports": {
+    "title": "Bericht generieren",
+    "subtitle": "Beschreiben Sie in naturlicher Sprache, was Sie benotigen",
+    "generate": "SQL generieren",
+    "schedule": "Planen",
+    "templates": "Vorlagen",
+    "sales": "Vertrieb",
+    "financial": "Finanzen",
+    "customers": "Kunden",
+    "export": {
+      "csv": "CSV exportieren",
+      "excel": "Excel exportieren",
+      "json": "JSON exportieren"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "profile": "Profil",
+    "notifications": "Benachrichtigungen",
+    "database": "Datenbank",
+    "ollama": "Ollama",
+    "save": "Speichern",
+    "saved": "Gespeichert",
+    "check": "Prufen",
+    "reset": "Zurucksetzen",
+    "connected": "Ollama verbunden",
+    "offline": "Ollama offline",
+    "ollamaConfig": "Ollama-Konfiguration",
+    "ollamaConfigDesc": "Konfigurieren Sie die URL und das Standardmodell von lokalem Ollama",
+    "ollamaUrl": "Ollama-URL"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "message": "Hoppla! Die Seite, die Sie suchen, existiert nicht.",
+    "backHome": "Zur Startseite"
+  },
+  "mobile": {
+    "openMenu": "Menu offnen",
+    "closeMenu": "Menu schliessen",
+    "dashboard": "Dashboard",
+    "generateReport": "Bericht generieren",
+    "history": "Verlauf",
+    "settings": "Einstellungen",
+    "administration": "Verwaltung",
+    "features": "Funktionen",
+    "security": "Sicherheit",
+    "authentication": "Authentifizierung",
+    "gemini": "Gemini",
+    "contact": "Kontakt",
+    "logout": "Abmelden"
+  }
+}

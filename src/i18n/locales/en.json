@@ -1,0 +1,481 @@
+{
+  "language": {
+    "select": "Select language"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "back": "Back",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "delete": "Delete",
+    "edit": "Edit",
+    "copy": "Copy",
+    "execute": "Execute",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "close": "Close",
+    "send": "Send",
+    "user": "User"
+  },
+  "nav": {
+    "features": "Features",
+    "security": "Security",
+    "plans": "Plans",
+    "pwa": "PWA",
+    "auth": "Auth",
+    "ollama": "Ollama",
+    "contact": "Contact",
+    "login": "Sign In",
+    "getStarted": "Get Started"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Powered by Ollama - 100% Local AI",
+      "title": "Intelligent Reports with",
+      "subtitle": "Connect your database, generate SQL with local AI via Ollama and visualize everything with Power BI Embedded. Full privacy - your data never leaves your machine.",
+      "cta": "Get Started",
+      "viewFeatures": "View Features",
+      "multiDatabase": "Multi-Database",
+      "sqlOllama": "SQL with Local Ollama",
+      "powerBIEmbedded": "Power BI Embedded"
+    },
+    "video": {
+      "title": "See InsightFlow in Action",
+      "subtitle": "Discover the platform main features"
+    },
+    "features": {
+      "title": "Complete",
+      "titleHighlight": "Features",
+      "subtitle": "Everything you need to transform data into actionable insights",
+      "items": {
+        "multiDb": {
+          "title": "Multi-Database Connection",
+          "desc": "PostgreSQL, MySQL, SQL Server, Oracle with secure credential encryption."
+        },
+        "sqlAI": {
+          "title": "Automatic SQL with AI",
+          "desc": "Describe in natural language, Ollama generates optimized SQL locally."
+        },
+        "execute": {
+          "title": "Direct Execution",
+          "desc": "Execute generated queries directly on your database."
+        },
+        "powerBI": {
+          "title": "Power BI Embedded",
+          "desc": "Visualize interactive dashboards directly in the system."
+        },
+        "history": {
+          "title": "Full History",
+          "desc": "Access all generated SQL queries with option to re-execute."
+        },
+        "savedResults": {
+          "title": "Saved Results",
+          "desc": "Execution history with result preview."
+        },
+        "exportResults": {
+          "title": "Export Results",
+          "desc": "Export data to CSV, Excel or JSON with one click."
+        },
+        "encryption": {
+          "title": "Secure Encryption",
+          "desc": "Passwords encrypted with AES-GCM and unique key per user."
+        },
+        "reports": {
+          "title": "Intelligent Reports",
+          "desc": "Automatic report creation based on your data."
+        },
+        "secureQueries": {
+          "title": "Secure Queries",
+          "desc": "SELECT only allowed, protection against SQL injection."
+        },
+        "analyticsChat": {
+          "title": "Analytics Chat",
+          "desc": "Chat with AI about data, SQL and Power BI."
+        },
+        "rerun": {
+          "title": "Re-run Queries",
+          "desc": "Re-execute any query from history in seconds."
+        },
+        "multiTenant": {
+          "title": "Multi-tenant",
+          "desc": "Each user with their own data and connections."
+        },
+        "kpis": {
+          "title": "Automatic KPIs",
+          "desc": "Automatic identification of relevant metrics."
+        },
+        "performance": {
+          "title": "High Performance",
+          "desc": "Fast execution with real-time feedback."
+        },
+        "api": {
+          "title": "Public API",
+          "desc": "Integrate InsightFlow with other systems via API."
+        }
+      }
+    },
+    "security": {
+      "badge": "Enterprise Security",
+      "title": "Security",
+      "titleHighlight": "First",
+      "subtitle": "Complete protection of your data with industry best practices",
+      "items": {
+        "sanitization": {
+          "title": "Input Sanitization",
+          "desc": "All inputs are validated and sanitized to prevent malicious injections."
+        },
+        "attackProtection": {
+          "title": "Attack Protection",
+          "desc": "SQL injection, XSS and CSRF blocking with multiple layers of defense."
+        },
+        "middleware": {
+          "title": "Security Middleware",
+          "desc": "Dedicated middleware removes sensitive data from any response."
+        },
+        "secureLogs": {
+          "title": "Secure Logs",
+          "desc": "Logs contain no confidential information, credentials or stack traces."
+        },
+        "rateLimiting": {
+          "title": "Rate Limiting",
+          "desc": "Protection against brute force and abuse with request limits."
+        },
+        "zeroExposure": {
+          "title": "Zero Exposure",
+          "desc": "We never return connection strings, credentials or raw SQL."
+        }
+      }
+    },
+    "authSection": {
+      "title": "Robust",
+      "titleHighlight": "Authentication",
+      "subtitle": "Complete authentication system with manual user approval.",
+      "flowTitle": "Approval Flow",
+      "step1": "User registers",
+      "step1Status": "Status: pending_approval",
+      "step2": "Admin receives email",
+      "step2Status": "With Approve/Reject buttons",
+      "step3": "User approved",
+      "step3Status": "Status: active - Email sent",
+      "items": {
+        "secureRegister": {
+          "title": "Secure Registration",
+          "desc": "Sign up with email and password with full validation."
+        },
+        "protectedLogin": {
+          "title": "Protected Login",
+          "desc": "Authentication with JWT tokens and automatic refresh."
+        },
+        "passwordRecovery": {
+          "title": "Password Recovery",
+          "desc": "Native recovery flow via email."
+        },
+        "manualApproval": {
+          "title": "Manual Approval",
+          "desc": "New users are approved by administrators."
+        },
+        "emailNotifications": {
+          "title": "Email Notifications",
+          "desc": "Automatic approval and rejection emails."
+        },
+        "routeProtection": {
+          "title": "Route Protection",
+          "desc": "Middleware that validates JWT and user status."
+        }
+      }
+    },
+    "pwa": {
+      "badge": "Progressive Web App",
+      "title": "Install as a",
+      "titleHighlight": "Native App",
+      "subtitle": "Native app experience directly from the browser, no app stores needed",
+      "items": {
+        "easyInstall": {
+          "title": "Easy Install",
+          "desc": "Install as a native app on any device"
+        },
+        "offline": {
+          "title": "Works Offline",
+          "desc": "Access cached data even without internet"
+        },
+        "splashScreen": {
+          "title": "Splash Screen",
+          "desc": "Custom loading screen"
+        },
+        "mobileFirst": {
+          "title": "Mobile First",
+          "desc": "Interface optimized for mobile devices"
+        },
+        "desktopReady": {
+          "title": "Desktop Ready",
+          "desc": "Full experience on desktop too"
+        },
+        "autoUpdate": {
+          "title": "Auto Updates",
+          "desc": "Always the latest version available"
+        }
+      }
+    },
+    "ollama": {
+      "badge": "Powered by Ollama - Local AI",
+      "title": "Artificial Intelligence",
+      "titleHighlight": "without the Cloud",
+      "subtitle": "The full power of modern LLMs running on your machine - private, fast and no per-token cost",
+      "chatTitle": "Ollama Chat",
+      "chatSubtitle": "running locally",
+      "online": "Online",
+      "ctaTitle": "Ready to get started?",
+      "ctaSubtitle": "Install Ollama, download a model and connect to InsightFlow",
+      "downloadOllama": "Download Ollama",
+      "changeModel": "Change the model in Settings",
+      "items": {
+        "sqlGen": {
+          "title": "SQL Generation",
+          "desc": "Describe what you need and Ollama generates optimized SQL locally."
+        },
+        "execute": {
+          "title": "Direct Execution",
+          "desc": "Execute the generated query directly on your connected database."
+        },
+        "viewResults": {
+          "title": "Results Viewer",
+          "desc": "See results in a table with preview of up to 100 records."
+        },
+        "flexExport": {
+          "title": "Flexible Export",
+          "desc": "Export results to CSV, Excel or JSON instantly."
+        },
+        "dataAnalysis": {
+          "title": "Data Analysis",
+          "desc": "Automatic identification of patterns, trends and anomalies in your data."
+        },
+        "private": {
+          "title": "100% Private",
+          "desc": "Your data never leaves your machine. Local AI via Ollama - no external API keys."
+        },
+        "multiModel": {
+          "title": "Multi-Model",
+          "desc": "Choose between Llama 3, Mistral, CodeLlama, Phi-3 and any Ollama model."
+        },
+        "continuousChat": {
+          "title": "Continuous Chat",
+          "desc": "Analytics chat with context memory for more precise iterations."
+        },
+        "noLatency": {
+          "title": "No Network Latency",
+          "desc": "Faster responses since AI runs directly on your local CPU/GPU."
+        },
+        "offlineWork": {
+          "title": "Works Offline",
+          "desc": "Work without internet - Ollama runs completely on your machine."
+        },
+        "executiveSummary": {
+          "title": "Executive Summary",
+          "desc": "Summarized reports ready for presentations generated locally."
+        },
+        "gpuAccel": {
+          "title": "GPU Accelerated",
+          "desc": "Leverage your NVIDIA/AMD GPU for ultra-fast inference with Ollama."
+        }
+      }
+    },
+    "gemini": {
+      "badge": "Powered by Gemini AI",
+      "title": "Cutting-Edge",
+      "titleHighlight": "Artificial Intelligence",
+      "subtitle": "Transform natural language into powerful insights with Gemini",
+      "chatTitle": "Analytics Chat",
+      "chatSubtitle": "Chat with your data"
+    },
+    "plans": {
+      "badge": "Plans and Pricing",
+      "title": "Choose the",
+      "titleHighlight": "right plan",
+      "subtitle": "Start transforming data into insights right now. Cancel anytime.",
+      "mostPopular": "Most Popular",
+      "subscribe": "Subscribe now",
+      "monthly": {
+        "name": "Monthly",
+        "period": "/month",
+        "features": [
+          "Connection to multiple databases",
+          "AI-powered SQL generation",
+          "Unlimited history",
+          "CSV/Excel/PDF export",
+          "Power BI integration"
+        ]
+      },
+      "annual": {
+        "name": "Annual",
+        "period": "/year",
+        "features": [
+          "Everything in Monthly",
+          "2 months free",
+          "Priority support",
+          "Advanced AI chat",
+          "Save R$ 198"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Transform your data into actionable insights with the power of Ollama (local AI) and Power BI visualization.",
+      "product": "Product",
+      "company": "Company",
+      "legal": "Legal",
+      "copyright": "2024 InsightFlow. All rights reserved.",
+      "links": {
+        "features": "Features",
+        "security": "Security",
+        "pricing": "Pricing",
+        "api": "API",
+        "about": "About Us",
+        "blog": "Blog",
+        "careers": "Careers",
+        "partners": "Partners",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "cookies": "Cookies",
+        "lgpd": "Data Protection"
+      }
+    }
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Create Account",
+    "forgotPassword": "Recover Password",
+    "resetPassword": "Reset Password",
+    "loginSubtitle": "Access your InsightFlow account",
+    "registerSubtitle": "Create your account to get started",
+    "forgotSubtitle": "Enter your email to recover",
+    "resetSubtitle": "Enter your new password",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Your name",
+    "forgotLink": "Forgot my password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "createAccount": "Create account",
+    "backToLogin": "Back to login",
+    "backToHome": "Back to home",
+    "submitLogin": "Sign In",
+    "submitRegister": "Create Account",
+    "submitForgot": "Send",
+    "loading": "Loading...",
+    "pendingApproval": {
+      "title": "Awaiting Approval",
+      "message": "Your account is pending approval. You will receive an email once an administrator approves your registration."
+    },
+    "rejected": {
+      "title": "Access Denied",
+      "message": "Your access request was rejected. Please contact the administrator for more information."
+    },
+    "errors": {
+      "invalidEmail": "Invalid email",
+      "passwordMin": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match",
+      "invalidCredentials": "Invalid email or password",
+      "emailAlreadyRegistered": "This email is already registered",
+      "loginError": "Login error",
+      "registerError": "Registration error"
+    },
+    "success": {
+      "registered": "Registration complete!",
+      "registeredMessage": "Your account is awaiting approval. You will receive an email when approved.",
+      "emailSent": "Email sent!",
+      "emailSentMessage": "Check your inbox to reset your password."
+    }
+  },
+  "dashboard": {
+    "welcome": "Hello",
+    "welcomeSubtitle": "Welcome to InsightFlow. Here is a summary of your activity.",
+    "reportsGenerated": "Reports Generated",
+    "sqlQueries": "SQL Queries",
+    "avgTime": "Avg. Time",
+    "successRate": "Success Rate",
+    "recentReports": "Recent Reports",
+    "noRecentReports": "No recent reports",
+    "status": {
+      "completed": "Completed",
+      "processing": "Processing",
+      "failed": "Failed"
+    },
+    "quickActions": "Quick Actions",
+    "newReport": "New Report",
+    "viewHistory": "View History"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "aiChat": "AI Chat",
+    "generateReport": "Generate Report",
+    "powerBI": "Power BI",
+    "sqlHistory": "SQL History",
+    "executions": "Executions",
+    "settings": "Settings",
+    "administration": "Administration",
+    "siteConfig": "Site Config",
+    "logout": "Sign Out"
+  },
+  "reports": {
+    "title": "Generate Report",
+    "subtitle": "Describe in natural language what you need",
+    "generate": "Generate SQL",
+    "schedule": "Schedule",
+    "templates": "Templates",
+    "sales": "Sales",
+    "financial": "Financial",
+    "customers": "Customers",
+    "export": {
+      "csv": "Export CSV",
+      "excel": "Export Excel",
+      "json": "Export JSON"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "database": "Database",
+    "ollama": "Ollama",
+    "save": "Save",
+    "saved": "Saved",
+    "check": "Check",
+    "reset": "Reset",
+    "connected": "Ollama connected",
+    "offline": "Ollama offline",
+    "ollamaConfig": "Ollama Configuration",
+    "ollamaConfigDesc": "Configure the URL and default model of local Ollama",
+    "ollamaUrl": "Ollama URL"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "Oops! The page you are looking for does not exist.",
+    "backHome": "Return to Home"
+  },
+  "mobile": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "dashboard": "Dashboard",
+    "generateReport": "Generate Report",
+    "history": "History",
+    "settings": "Settings",
+    "administration": "Administration",
+    "features": "Features",
+    "security": "Security",
+    "authentication": "Authentication",
+    "gemini": "Gemini",
+    "contact": "Contact",
+    "logout": "Sign Out"
+  }
+}

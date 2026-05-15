@@ -1,0 +1,481 @@
+{
+  "language": {
+    "select": "Selecionar idioma"
+  },
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "back": "Voltar",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "dashboard": "Dashboard",
+    "settings": "Configuracoes",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "copy": "Copiar",
+    "execute": "Executar",
+    "yes": "Sim",
+    "no": "Nao",
+    "confirm": "Confirmar",
+    "close": "Fechar",
+    "send": "Enviar",
+    "user": "Usuario"
+  },
+  "nav": {
+    "features": "Funcionalidades",
+    "security": "Seguranca",
+    "plans": "Planos",
+    "pwa": "PWA",
+    "auth": "Auth",
+    "ollama": "Ollama",
+    "contact": "Contato",
+    "login": "Entrar",
+    "getStarted": "Comecar"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Powered by Ollama - IA 100% Local",
+      "title": "Relatorios Inteligentes com",
+      "subtitle": "Conecte seu banco de dados, gere SQL com IA local via Ollama e visualize tudo com Power BI Embedded. Privacidade total - seus dados nunca saem da sua maquina.",
+      "cta": "Comece Agora",
+      "viewFeatures": "Ver Funcionalidades",
+      "multiDatabase": "Multi-Database",
+      "sqlOllama": "SQL com Ollama Local",
+      "powerBIEmbedded": "Power BI Embedded"
+    },
+    "video": {
+      "title": "Veja o InsightFlow em Acao",
+      "subtitle": "Conheca as principais funcionalidades da plataforma"
+    },
+    "features": {
+      "title": "Funcionalidades",
+      "titleHighlight": "Completas",
+      "subtitle": "Tudo que voce precisa para transformar dados em insights acionaveis",
+      "items": {
+        "multiDb": {
+          "title": "Conexao Multi-Banco",
+          "desc": "PostgreSQL, MySQL, SQL Server, Oracle com criptografia segura de credenciais."
+        },
+        "sqlAI": {
+          "title": "SQL Automatico com IA",
+          "desc": "Descreva em linguagem natural, Ollama gera o SQL otimizado localmente."
+        },
+        "execute": {
+          "title": "Execucao Direta",
+          "desc": "Execute queries geradas diretamente no seu banco de dados."
+        },
+        "powerBI": {
+          "title": "Power BI Embedded",
+          "desc": "Visualize dashboards interativos diretamente no sistema."
+        },
+        "history": {
+          "title": "Historico Completo",
+          "desc": "Acesse todas as queries SQL geradas com opcao de re-executar."
+        },
+        "savedResults": {
+          "title": "Resultados Salvos",
+          "desc": "Historico de execucoes com preview dos resultados."
+        },
+        "exportResults": {
+          "title": "Exportar Resultados",
+          "desc": "Exporte dados para CSV, Excel ou JSON com um clique."
+        },
+        "encryption": {
+          "title": "Criptografia Segura",
+          "desc": "Senhas criptografadas com AES-GCM e chave unica por usuario."
+        },
+        "reports": {
+          "title": "Relatorios Inteligentes",
+          "desc": "Criacao automatica de relatorios baseada nos seus dados."
+        },
+        "secureQueries": {
+          "title": "Queries Seguras",
+          "desc": "Apenas SELECT permitido, protecao contra SQL injection."
+        },
+        "analyticsChat": {
+          "title": "Chat Analitico",
+          "desc": "Converse com a IA sobre dados, SQL e Power BI."
+        },
+        "rerun": {
+          "title": "Re-executar Queries",
+          "desc": "Re-execute qualquer query do historico em segundos."
+        },
+        "multiTenant": {
+          "title": "Multi-tenant",
+          "desc": "Cada usuario com seus proprios dados e conexoes."
+        },
+        "kpis": {
+          "title": "KPIs Automaticos",
+          "desc": "Identificacao automatica de metricas relevantes."
+        },
+        "performance": {
+          "title": "Alta Performance",
+          "desc": "Execucao rapida com feedback em tempo real."
+        },
+        "api": {
+          "title": "API Publica",
+          "desc": "Integre o InsightFlow com outros sistemas via API."
+        }
+      }
+    },
+    "security": {
+      "badge": "Enterprise Security",
+      "title": "Seguranca em",
+      "titleHighlight": "Primeiro Lugar",
+      "subtitle": "Protecao completa dos seus dados com as melhores praticas de seguranca",
+      "items": {
+        "sanitization": {
+          "title": "Sanitizacao de Entradas",
+          "desc": "Todas as entradas sao validadas e sanitizadas para prevenir injecoes maliciosas."
+        },
+        "attackProtection": {
+          "title": "Protecao contra Ataques",
+          "desc": "Bloqueio de SQL injection, XSS e CSRF com multiplas camadas de defesa."
+        },
+        "middleware": {
+          "title": "Middleware de Seguranca",
+          "desc": "Middleware dedicado remove dados sensiveis de qualquer resposta."
+        },
+        "secureLogs": {
+          "title": "Logs Seguros",
+          "desc": "Logs nao contem informacoes confidenciais, credenciais ou stack traces."
+        },
+        "rateLimiting": {
+          "title": "Rate Limiting",
+          "desc": "Protecao contra brute force e abuso com limites de requisicoes."
+        },
+        "zeroExposure": {
+          "title": "Zero Exposicao",
+          "desc": "Nunca retornamos strings de conexao, credenciais ou SQL bruto."
+        }
+      }
+    },
+    "authSection": {
+      "title": "Autenticacao",
+      "titleHighlight": "Robusta",
+      "subtitle": "Sistema completo de autenticacao com aprovacao manual de usuarios, garantindo que apenas pessoas autorizadas acessem a plataforma.",
+      "flowTitle": "Fluxo de Aprovacao",
+      "step1": "Usuario se registra",
+      "step1Status": "Status: pending_approval",
+      "step2": "Admin recebe email",
+      "step2Status": "Com botoes Aprovar/Rejeitar",
+      "step3": "Usuario aprovado",
+      "step3Status": "Status: active - Email enviado",
+      "items": {
+        "secureRegister": {
+          "title": "Registro Seguro",
+          "desc": "Cadastro com email e senha com validacao completa."
+        },
+        "protectedLogin": {
+          "title": "Login Protegido",
+          "desc": "Autenticacao com tokens JWT e refresh automatico."
+        },
+        "passwordRecovery": {
+          "title": "Recuperacao de Senha",
+          "desc": "Fluxo nativo de recuperacao via email."
+        },
+        "manualApproval": {
+          "title": "Aprovacao Manual",
+          "desc": "Novos usuarios sao aprovados por administradores."
+        },
+        "emailNotifications": {
+          "title": "Notificacoes por Email",
+          "desc": "Emails automaticos de aprovacao e rejeicao."
+        },
+        "routeProtection": {
+          "title": "Protecao de Rotas",
+          "desc": "Middleware que valida JWT e status do usuario."
+        }
+      }
+    },
+    "pwa": {
+      "badge": "Progressive Web App",
+      "title": "Instale Como um",
+      "titleHighlight": "App Nativo",
+      "subtitle": "Experiencia de aplicativo nativo direto do navegador, sem precisar de app stores",
+      "items": {
+        "easyInstall": {
+          "title": "Instalacao Facil",
+          "desc": "Instale como app nativo em qualquer dispositivo"
+        },
+        "offline": {
+          "title": "Funciona Offline",
+          "desc": "Acesse dados em cache mesmo sem internet"
+        },
+        "splashScreen": {
+          "title": "Splash Screen",
+          "desc": "Tela de carregamento personalizada"
+        },
+        "mobileFirst": {
+          "title": "Mobile First",
+          "desc": "Interface otimizada para dispositivos moveis"
+        },
+        "desktopReady": {
+          "title": "Desktop Ready",
+          "desc": "Experiencia completa tambem no desktop"
+        },
+        "autoUpdate": {
+          "title": "Atualizacoes Automaticas",
+          "desc": "Sempre a versao mais recente disponivel"
+        }
+      }
+    },
+    "ollama": {
+      "badge": "Powered by Ollama - IA Local",
+      "title": "Inteligencia Artificial",
+      "titleHighlight": "sem Nuvem",
+      "subtitle": "Toda a potencia de LLMs modernos rodando na sua maquina - privado, rapido e sem custo por token",
+      "chatTitle": "Ollama Chat",
+      "chatSubtitle": "rodando localmente",
+      "online": "Online",
+      "ctaTitle": "Pronto para comecar?",
+      "ctaSubtitle": "Instale o Ollama, baixe um modelo e conecte ao InsightFlow",
+      "downloadOllama": "Baixar Ollama",
+      "changeModel": "Troque o modelo nas Configuracoes",
+      "items": {
+        "sqlGen": {
+          "title": "Geracao de SQL",
+          "desc": "Descreva em portugues e o Ollama gera SQL otimizado localmente, sem enviar dados a nuvem."
+        },
+        "execute": {
+          "title": "Execucao Direta",
+          "desc": "Execute a query gerada diretamente no seu banco de dados conectado."
+        },
+        "viewResults": {
+          "title": "Visualizacao de Resultados",
+          "desc": "Veja os resultados em tabela com preview de ate 100 registros."
+        },
+        "flexExport": {
+          "title": "Exportacao Flexivel",
+          "desc": "Exporte resultados para CSV, Excel ou JSON instantaneamente."
+        },
+        "dataAnalysis": {
+          "title": "Analise de Dados",
+          "desc": "Identificacao automatica de padroes, tendencias e anomalias nos seus dados."
+        },
+        "private": {
+          "title": "100% Privado",
+          "desc": "Seus dados nunca saem da sua maquina. IA local via Ollama - sem API keys externas."
+        },
+        "multiModel": {
+          "title": "Multi-Modelo",
+          "desc": "Escolha entre Llama 3, Mistral, CodeLlama, Phi-3 e qualquer modelo Ollama."
+        },
+        "continuousChat": {
+          "title": "Conversa Continua",
+          "desc": "Chat analitico com memoria de contexto para iteracoes mais precisas."
+        },
+        "noLatency": {
+          "title": "Sem Latencia de Rede",
+          "desc": "Respostas mais rapidas pois a IA roda diretamente na sua CPU/GPU local."
+        },
+        "offlineWork": {
+          "title": "Funciona Offline",
+          "desc": "Trabalhe sem internet - o Ollama roda completamente na sua maquina."
+        },
+        "executiveSummary": {
+          "title": "Resumo Executivo",
+          "desc": "Relatorios resumidos e prontos para apresentacoes gerados localmente."
+        },
+        "gpuAccel": {
+          "title": "GPU Acelerado",
+          "desc": "Aproveite sua GPU NVIDIA/AMD para inferencia ultrarapida com Ollama."
+        }
+      }
+    },
+    "gemini": {
+      "badge": "Powered by Gemini AI",
+      "title": "Inteligencia Artificial",
+      "titleHighlight": "de Ponta",
+      "subtitle": "Transforme linguagem natural em insights poderosos com Gemini",
+      "chatTitle": "Chat Analitico",
+      "chatSubtitle": "Converse com seus dados"
+    },
+    "plans": {
+      "badge": "Planos e Precos",
+      "title": "Escolha o plano",
+      "titleHighlight": "ideal",
+      "subtitle": "Comece a transformar dados em insights agora mesmo. Cancele quando quiser.",
+      "mostPopular": "Mais Popular",
+      "subscribe": "Assinar agora",
+      "monthly": {
+        "name": "Mensal",
+        "period": "/mes",
+        "features": [
+          "Conexao com multiplos bancos",
+          "Geracao de SQL com IA",
+          "Historico ilimitado",
+          "Exportacao CSV/Excel/PDF",
+          "Integracao com Power BI"
+        ]
+      },
+      "annual": {
+        "name": "Anual",
+        "period": "/ano",
+        "features": [
+          "Tudo do plano Mensal",
+          "2 meses gratis",
+          "Suporte prioritario",
+          "Chat com IA avancado",
+          "Economize R$ 198"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Transforme seus dados em insights acionaveis com a potencia do Ollama (IA local) e a visualizacao do Power BI.",
+      "product": "Produto",
+      "company": "Empresa",
+      "legal": "Legal",
+      "copyright": "2024 InsightFlow. Todos os direitos reservados.",
+      "links": {
+        "features": "Funcionalidades",
+        "security": "Seguranca",
+        "pricing": "Precos",
+        "api": "API",
+        "about": "Sobre Nos",
+        "blog": "Blog",
+        "careers": "Carreiras",
+        "partners": "Parceiros",
+        "terms": "Termos de Uso",
+        "privacy": "Politica de Privacidade",
+        "cookies": "Cookies",
+        "lgpd": "LGPD"
+      }
+    }
+  },
+  "auth": {
+    "login": "Entrar",
+    "register": "Criar Conta",
+    "forgotPassword": "Recuperar Senha",
+    "resetPassword": "Redefinir Senha",
+    "loginSubtitle": "Acesse sua conta InsightFlow",
+    "registerSubtitle": "Crie sua conta para comecar",
+    "forgotSubtitle": "Digite seu e-mail para recuperar",
+    "resetSubtitle": "Digite sua nova senha",
+    "email": "E-mail",
+    "emailPlaceholder": "seu@email.com",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "Seu nome",
+    "forgotLink": "Esqueci minha senha",
+    "noAccount": "Nao tem conta?",
+    "hasAccount": "Ja tem conta?",
+    "createAccount": "Criar conta",
+    "backToLogin": "Voltar ao login",
+    "backToHome": "Voltar ao inicio",
+    "submitLogin": "Entrar",
+    "submitRegister": "Criar Conta",
+    "submitForgot": "Enviar",
+    "loading": "Carregando...",
+    "pendingApproval": {
+      "title": "Aguardando Aprovacao",
+      "message": "Sua conta esta pendente de aprovacao. Voce recebera um e-mail assim que um administrador aprovar seu cadastro."
+    },
+    "rejected": {
+      "title": "Acesso Negado",
+      "message": "Sua solicitacao de acesso foi rejeitada. Entre em contato com o administrador para mais informacoes."
+    },
+    "errors": {
+      "invalidEmail": "E-mail invalido",
+      "passwordMin": "Senha deve ter pelo menos 6 caracteres",
+      "passwordMismatch": "As senhas nao coincidem",
+      "invalidCredentials": "E-mail ou senha incorretos",
+      "emailAlreadyRegistered": "Este e-mail ja esta cadastrado",
+      "loginError": "Erro no login",
+      "registerError": "Erro no cadastro"
+    },
+    "success": {
+      "registered": "Cadastro realizado!",
+      "registeredMessage": "Sua conta esta aguardando aprovacao. Voce recebera um e-mail quando for aprovado.",
+      "emailSent": "E-mail enviado!",
+      "emailSentMessage": "Verifique sua caixa de entrada para redefinir sua senha."
+    }
+  },
+  "dashboard": {
+    "welcome": "Ola",
+    "welcomeSubtitle": "Bem-vindo ao InsightFlow. Veja um resumo das suas atividades.",
+    "reportsGenerated": "Relatorios Gerados",
+    "sqlQueries": "Consultas SQL",
+    "avgTime": "Tempo Medio",
+    "successRate": "Taxa de Sucesso",
+    "recentReports": "Relatorios Recentes",
+    "noRecentReports": "Nenhum relatorio recente",
+    "status": {
+      "completed": "Concluido",
+      "processing": "Processando",
+      "failed": "Falhou"
+    },
+    "quickActions": "Acoes Rapidas",
+    "newReport": "Novo Relatorio",
+    "viewHistory": "Ver Historico"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "aiChat": "AI Chat",
+    "generateReport": "Gerar Relatorio",
+    "powerBI": "Power BI",
+    "sqlHistory": "Historico SQL",
+    "executions": "Execucoes",
+    "settings": "Configuracoes",
+    "administration": "Administracao",
+    "siteConfig": "Config. do Site",
+    "logout": "Sair"
+  },
+  "reports": {
+    "title": "Gerar Relatorio",
+    "subtitle": "Descreva em linguagem natural o que voce precisa",
+    "generate": "Gerar SQL",
+    "schedule": "Agendar",
+    "templates": "Templates",
+    "sales": "Vendas",
+    "financial": "Financeiro",
+    "customers": "Clientes",
+    "export": {
+      "csv": "Exportar CSV",
+      "excel": "Exportar Excel",
+      "json": "Exportar JSON"
+    }
+  },
+  "settings": {
+    "title": "Configuracoes",
+    "profile": "Perfil",
+    "notifications": "Notificacoes",
+    "database": "Banco de Dados",
+    "ollama": "Ollama",
+    "save": "Salvar",
+    "saved": "Salvo",
+    "check": "Verificar",
+    "reset": "Resetar",
+    "connected": "Ollama conectado",
+    "offline": "Ollama offline",
+    "ollamaConfig": "Configuracao do Ollama",
+    "ollamaConfigDesc": "Configure a URL e o modelo padrao do Ollama local",
+    "ollamaUrl": "URL do Ollama"
+  },
+  "notFound": {
+    "title": "Pagina nao encontrada",
+    "message": "Ops! A pagina que voce esta procurando nao existe.",
+    "backHome": "Voltar ao inicio"
+  },
+  "mobile": {
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "dashboard": "Dashboard",
+    "generateReport": "Gerar Relatorio",
+    "history": "Historico",
+    "settings": "Configuracoes",
+    "administration": "Administracao",
+    "features": "Funcionalidades",
+    "security": "Seguranca",
+    "authentication": "Autenticacao",
+    "gemini": "Gemini",
+    "contact": "Contato",
+    "logout": "Sair"
+  }
+}

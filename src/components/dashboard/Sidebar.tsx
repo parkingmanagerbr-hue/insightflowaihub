@@ -1,20 +1,10 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
-  LayoutDashboard,
-  FileText,
-  BarChart3,
-  History,
-  Settings,
-  Users,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  MessageSquare,
-  Play,
-  Download,
-  Settings2,
+  LayoutDashboard, FileText, BarChart3, History, Settings,
+  Users, LogOut, ChevronLeft, ChevronRight, MessageSquare, Play, Settings2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -28,46 +18,39 @@ interface SidebarProps {
 const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
   const location = useLocation();
   const { isAdmin, signOut } = useAuth();
+  const { t } = useTranslation();
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    { icon: MessageSquare, label: 'AI Chat', path: '/dashboard/chat' },
-    { icon: FileText, label: 'Gerar Relatório', path: '/dashboard/reports' },
-    { icon: BarChart3, label: 'Power BI', path: '/dashboard/powerbi' },
-    { icon: History, label: 'Histórico SQL', path: '/dashboard/history' },
-    { icon: Play, label: 'Execuções', path: '/dashboard/executions' },
-    { icon: Settings, label: 'Configurações', path: '/dashboard/settings' },
+    { icon: LayoutDashboard, labelKey: 'sidebar.dashboard', path: '/dashboard' },
+    { icon: MessageSquare, labelKey: 'sidebar.aiChat', path: '/dashboard/chat' },
+    { icon: FileText, labelKey: 'sidebar.generateReport', path: '/dashboard/reports' },
+    { icon: BarChart3, labelKey: 'sidebar.powerBI', path: '/dashboard/powerbi' },
+    { icon: History, labelKey: 'sidebar.sqlHistory', path: '/dashboard/history' },
+    { icon: Play, labelKey: 'sidebar.executions', path: '/dashboard/executions' },
+    { icon: Settings, labelKey: 'sidebar.settings', path: '/dashboard/settings' },
   ];
 
   const adminItems = [
-    { icon: Users, label: 'Administração', path: '/dashboard/admin' },
-    { icon: Settings2, label: 'Config. do Site', path: '/dashboard/site-config' },
+    { icon: Users, labelKey: 'sidebar.administration', path: '/dashboard/admin' },
+    { icon: Settings2, labelKey: 'sidebar.siteConfig', path: '/dashboard/site-config' },
   ];
 
   const NavItem = ({ item }: { item: typeof menuItems[0] }) => {
     const isActive = location.pathname === item.path;
-
     return (
       <NavLink
         to={item.path}
         className={cn(
           'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200',
           'hover:bg-primary/10 hover:text-primary',
-          isActive
-            ? 'bg-primary text-primary-foreground shadow-lg'
-            : 'text-muted-foreground'
+          isActive ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground'
         )}
       >
         <item.icon className="w-5 h-5 flex-shrink-0" />
         <AnimatePresence>
           {!isCollapsed && (
-            <motion.span
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
-              exit={{ opacity: 0, width: 0 }}
-              className="whitespace-nowrap font-medium"
-            >
-              {item.label}
+            <motion.span initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} className="whitespace-nowrap font-medium">
+              {t(item.labelKey)}
             </motion.span>
           )}
         </AnimatePresence>
@@ -76,71 +59,40 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
   };
 
   return (
-    <motion.aside
-      initial={false}
-      animate={{ width: isCollapsed ? 80 : 260 }}
-      className="h-screen bg-card border-r border-border flex flex-col fixed left-0 top-0 z-40"
-    >
-      {/* Header */}
+    <motion.aside initial={false} animate={{ width: isCollapsed ? 80 : 260 }} className="h-screen bg-card border-r border-border flex flex-col fixed left-0 top-0 z-40">
       <div className="p-4 border-b border-border flex items-center justify-between">
         <AnimatePresence>
           {!isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <Logo />
             </motion.div>
           )}
         </AnimatePresence>
-        <button
-          onClick={onToggle}
-          className="p-2 rounded-lg hover:bg-muted transition-colors"
-        >
-          {isCollapsed ? (
-            <ChevronRight className="w-5 h-5" />
-          ) : (
-            <ChevronLeft className="w-5 h-5" />
-          )}
+        <button onClick={onToggle} className="p-2 rounded-lg hover:bg-muted transition-colors">
+          {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {menuItems.map((item) => (
-          <NavItem key={item.path} item={item} />
-        ))}
-
+        {menuItems.map((item) => <NavItem key={item.path} item={item} />)}
         {isAdmin && (
           <>
             <div className="my-4 border-t border-border" />
-            {adminItems.map((item) => (
-              <NavItem key={item.path} item={item} />
-            ))}
+            {adminItems.map((item) => <NavItem key={item.path} item={item} />)}
           </>
         )}
       </nav>
 
-      {/* Logout */}
       <div className="p-4 border-t border-border">
         <button
           onClick={signOut}
-          className={cn(
-            'flex items-center gap-3 px-3 py-2.5 rounded-lg w-full transition-all duration-200',
-            'hover:bg-destructive/10 hover:text-destructive text-muted-foreground'
-          )}
+          className={cn('flex items-center gap-3 px-3 py-2.5 rounded-lg w-full transition-all duration-200', 'hover:bg-destructive/10 hover:text-destructive text-muted-foreground')}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           <AnimatePresence>
             {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                className="whitespace-nowrap font-medium"
-              >
-                Sair
+              <motion.span initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }} className="whitespace-nowrap font-medium">
+                {t('sidebar.logout')}
               </motion.span>
             )}
           </AnimatePresence>
