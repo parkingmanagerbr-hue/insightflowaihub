@@ -54,7 +54,7 @@ export const VScene3Security = () => {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
         {securityItems.map((item, i) => (
-          <Sequence key={i} from={20 + i * 10}>
+          <Sequence key={i} from={20 + i * 10} layout="none">
             <SecurityItem item={item} />
           </Sequence>
         ))}

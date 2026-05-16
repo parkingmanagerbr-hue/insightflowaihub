@@ -24,3 +24,15 @@ dist-ssr
 *.sw?
 .vercel
 .netlify
+
+# Android / Capacitor
+android/.gradle
+android/build
+android/app/build
+android/local.properties
+android/app/release
+*.apk
+*.aab
+*.keystore
+android/keystore.properties
+# Manter android/ no git (mas excluir builds e gradle cache)

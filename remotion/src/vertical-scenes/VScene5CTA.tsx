@@ -66,7 +66,7 @@ export const VScene5CTA = () => {
         color: "#60a5fa", padding: "16px 40px", borderRadius: 16,
         background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
       }}>
-        insightflowaihub.lovable.app
+        insightflowaihub.netlify.app
       </div>
     </AbsoluteFill>
   );

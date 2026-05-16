@@ -6,6 +6,8 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // base './' necessário para Capacitor (Android/iOS), '/' para web
+  base: process.env.VITE_CAPACITOR === "true" ? "./" : "/",
   server: {
     host: "::",
     port: 8080,

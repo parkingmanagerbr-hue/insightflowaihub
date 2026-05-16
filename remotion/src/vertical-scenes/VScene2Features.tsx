@@ -36,7 +36,7 @@ export const VScene2Features = () => {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 18, width: "100%" }}>
         {features.map((f, i) => (
-          <Sequence key={i} from={15 + i * 8}>
+          <Sequence key={i} from={15 + i * 8} layout="none">
             <FeatureCard feature={f} />
           </Sequence>
         ))}

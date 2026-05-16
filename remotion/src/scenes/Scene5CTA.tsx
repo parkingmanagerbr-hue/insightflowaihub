@@ -122,7 +122,7 @@ export const Scene5CTA = () => {
           fontWeight: 400,
         }}
       >
-        insightflowaihub.lovable.app
+        insightflowaihub.netlify.app
       </div>
     </AbsoluteFill>
   );

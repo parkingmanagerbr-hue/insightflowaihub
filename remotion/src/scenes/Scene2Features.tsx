@@ -119,7 +119,7 @@ export const Scene2Features = () => {
         }}
       >
         {features.map((f, i) => (
-          <Sequence key={i} from={18 + i * 8}>
+          <Sequence key={i} from={18 + i * 8} layout="none">
             <FeatureCard feature={f} index={i} />
           </Sequence>
         ))}
